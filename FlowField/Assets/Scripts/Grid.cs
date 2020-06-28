@@ -12,8 +12,11 @@ namespace TMG.FlowField
 
 		Node[,] grid;
 		Vector2Int[] cardinalDirections = { new Vector2Int(0, 1), new Vector2Int(1,0), new Vector2Int(0, -1), new Vector2Int(-1, 0) };
+		Vector2Int[] eightDirections = { new Vector2Int(0, 1), new Vector2Int(1, 1), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1), new Vector2Int(-1, -1), new Vector2Int(-1, 0), new Vector2Int(-1, 1) };
+
 		Node goalNode;
 		float nodeDiameter;
+		bool displayFF;
 
 		private void Start()
 		{
@@ -54,7 +57,28 @@ namespace TMG.FlowField
 				goalNode = curNode;
 
 				CreateIntegrationField();
+				CreateFlowField();
 			}
+		}
+
+		private void CreateFlowField()
+		{
+			foreach(Node curNode in grid)
+			{
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, eightDirections);
+
+				int bestCost = curNode.bestCost;
+				
+				foreach(Node curNeighbor in curNeighbors)
+				{
+					if(curNeighbor.bestCost < bestCost)
+					{
+						bestCost = curNeighbor.bestCost;
+						curNode.bestDirection = curNeighbor.nodeIndex - curNode.nodeIndex;
+					}
+				}
+			}
+			displayFF = true;
 		}
 
 		private void CreateIntegrationField()
@@ -74,7 +98,7 @@ namespace TMG.FlowField
 			while(nodes.Count > 0)
 			{
 				Node curNode = nodes.Dequeue();
-				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex);
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, cardinalDirections);
 				foreach(Node curNeighbor in curNeighbors)
 				{
 					if(curNeighbor.cost == byte.MaxValue) { continue; }
@@ -87,11 +111,11 @@ namespace TMG.FlowField
 			}
 		}
 
-		private List<Node> GetNeighborNodes(Vector2Int nodeIndex)
+		private List<Node> GetNeighborNodes(Vector2Int nodeIndex, Vector2Int[] directions)
 		{
 			List<Node> neighborNodes = new List<Node>();
 
-			foreach(Vector2Int curDirection in cardinalDirections)
+			foreach(Vector2Int curDirection in directions)
 			{
 				Node newNeighbor = GetNodeAtRelativePos(nodeIndex, curDirection);
 				if(newNeighbor != null)
@@ -131,11 +155,9 @@ namespace TMG.FlowField
 		}
 
 		void OnDrawGizmos()
-		{
-			
+		{		
 			if(grid != null)
-			{
-				
+			{				
 				foreach (Node n in grid)
 				{
 					float greenLevel = (float)(256f - n.cost) / 256f;
@@ -143,6 +165,13 @@ namespace TMG.FlowField
 					Gizmos.color = n.walkable ? walkableColor : Color.red;
 					if(n.cost == 0) { Gizmos.color = Color.yellow; }
 					Gizmos.DrawCube(n.worldPos, Vector3.one * (nodeDiameter - 0.1f));
+
+					if (displayFF)
+					{
+						Gizmos.color = Color.white;
+						Vector3 endLinePos = new Vector3(n.worldPos.x + n.bestDirection.x, 3, n.worldPos.z + n.bestDirection.y);
+						Gizmos.DrawLine(n.worldPos, endLinePos);
+					}
 				}
 			}
 		}

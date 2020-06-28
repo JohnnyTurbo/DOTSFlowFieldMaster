@@ -5,6 +5,7 @@ public class Node
 	public bool walkable;
 	public Vector3 worldPos;
 	public Vector2Int nodeIndex;
+	public Vector2Int bestDirection;
 	public byte cost;
 	public ushort bestCost;
 	
@@ -15,6 +16,7 @@ public class Node
 		nodeIndex = _nodeIndex;
 		cost = 1;
 		bestCost = ushort.MaxValue;
+		bestDirection = Vector2Int.zero;
 	}
 
 	public void IncreaseCost(int amnt)
