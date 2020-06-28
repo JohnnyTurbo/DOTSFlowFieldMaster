@@ -33,7 +33,10 @@ namespace TMG.FlowField
 			else if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButtonDown(0))
 			{
 				//Debug.Log("Alt + Click");
-
+				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
+				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
+				Node unwalkNode = GetNodeFromWorldPos(worldMousePos);
+				unwalkNode.IncreaseCost(10);
 			}
 
 			else if (Input.GetMouseButtonDown(0))
@@ -66,7 +69,9 @@ namespace TMG.FlowField
 				
 				foreach (Node n in grid)
 				{
-					Gizmos.color = n.walkable ? Color.green : Color.red;
+					float greenLevel = (float)(256f - n.cost) / 256f;
+					Color walkableColor = new Color(0, greenLevel, 0);
+					Gizmos.color = n.walkable ? walkableColor : Color.red;
 					Gizmos.DrawCube(n.worldPos, Vector3.one * (nodeDiameter - 0.1f));
 				}
 			}

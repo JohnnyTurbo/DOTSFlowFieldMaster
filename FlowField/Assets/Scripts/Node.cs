@@ -15,11 +15,11 @@ public class Node
 		bestCost = ushort.MaxValue;
 	}
 
-	public void IncreaseCost()
+	public void IncreaseCost(int amnt)
 	{
 		if(cost == byte.MaxValue) { return; }
-		cost++;
-		if(cost == byte.MaxValue) { walkable = false; }
+		if (amnt + cost >= 255) { MakeImpassible(); }
+		else { cost += (byte) amnt; } ;
 	}
 
 	public void MakeImpassible()
