@@ -11,6 +11,8 @@ namespace TMG.FlowField
 		public float nodeRadius = 1;
 
 		Node[,] grid;
+		Vector2Int[] cardinalDirections = { new Vector2Int(0, 1), new Vector2Int(1,0), new Vector2Int(0, -1), new Vector2Int(-1, 0) };
+		Node goalNode;
 		float nodeDiameter;
 
 		private void Start()
@@ -26,8 +28,8 @@ namespace TMG.FlowField
 				//Debug.Log("Ctrl + Click");
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node unwalkNode = GetNodeFromWorldPos(worldMousePos);
-				unwalkNode.MakeImpassible();
+				Node curNode = GetNodeFromWorldPos(worldMousePos);
+				curNode.MakeImpassible();
 			}
 
 			else if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButtonDown(0))
@@ -35,20 +37,87 @@ namespace TMG.FlowField
 				//Debug.Log("Alt + Click");
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node unwalkNode = GetNodeFromWorldPos(worldMousePos);
-				unwalkNode.IncreaseCost(10);
+				Node curNode = GetNodeFromWorldPos(worldMousePos);
+				curNode.IncreaseCost(10);
 			}
 
 			else if (Input.GetMouseButtonDown(0))
 			{
 				//Debug.Log("Click");
 				//Set goal & recalc cost
+				if(goalNode != null) { goalNode.cost = 1; }
+				
+				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
+				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
+				Node curNode = GetNodeFromWorldPos(worldMousePos);
+				curNode.cost = 0;
+				goalNode = curNode;
+
+				CreateIntegrationField();
 			}
+		}
+
+		private void CreateIntegrationField()
+		{
+			foreach(Node n in grid)
+			{
+				n.bestCost = ushort.MaxValue;
+			}
+
+			goalNode.bestCost = 0;
+
+			//List<Node> openList = new List<Node>();
+			Queue<Node> nodes = new Queue<Node>();
+
+			nodes.Enqueue(goalNode);
+
+			while(nodes.Count > 0)
+			{
+				Node curNode = nodes.Dequeue();
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex);
+				foreach(Node curNeighbor in curNeighbors)
+				{
+					if(curNeighbor.cost == byte.MaxValue) { continue; }
+					if(curNeighbor.cost + curNode.cost < curNeighbor.bestCost)
+					{
+						curNeighbor.bestCost = (ushort) (curNeighbor.cost + curNode.cost);
+						nodes.Enqueue(curNeighbor);
+					}
+				}
+			}
+		}
+
+		private List<Node> GetNeighborNodes(Vector2Int nodeIndex)
+		{
+			List<Node> neighborNodes = new List<Node>();
+
+			foreach(Vector2Int curDirection in cardinalDirections)
+			{
+				Node newNeighbor = GetNodeAtRelativePos(nodeIndex, curDirection);
+				if(newNeighbor != null)
+				{
+					neighborNodes.Add(newNeighbor);
+				}
+			}
+
+			return neighborNodes;
+		}
+
+		private Node GetNodeAtRelativePos(Vector2Int orignPos, Vector2Int relativePos)
+		{
+			Vector2Int finalPos = orignPos + relativePos;
+
+			if(finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y)
+			{
+				return null;
+			}
+
+			else { return grid[finalPos.x, finalPos.y]; }
 		}
 
 		private void CreateGrid()
 		{
-			Debug.Log("Creating Cube");
+			//Debug.Log("Creating Grid");
 			grid = new Node[gridSize.x, gridSize.y];
 
 			for(int x = 0; x < gridSize.x; x++)
@@ -56,7 +125,7 @@ namespace TMG.FlowField
 				for(int y = 0; y < gridSize.y; y++)
 				{
 					Vector3 worldPos = new Vector3(nodeDiameter * x + nodeRadius, 0, nodeDiameter * y + nodeRadius);
-					grid[x, y] = new Node(true, worldPos);
+					grid[x, y] = new Node(true, worldPos, new Vector2Int(x,y));
 				}
 			}
 		}
@@ -72,6 +141,7 @@ namespace TMG.FlowField
 					float greenLevel = (float)(256f - n.cost) / 256f;
 					Color walkableColor = new Color(0, greenLevel, 0);
 					Gizmos.color = n.walkable ? walkableColor : Color.red;
+					if(n.cost == 0) { Gizmos.color = Color.yellow; }
 					Gizmos.DrawCube(n.worldPos, Vector3.one * (nodeDiameter - 0.1f));
 				}
 			}
@@ -81,7 +151,7 @@ namespace TMG.FlowField
 		{
 			float percentX = worldPos.x / (gridSize.x * nodeDiameter);
 			float percentY = worldPos.z / (gridSize.y * nodeDiameter);
-			Debug.Log("X: " + percentX + " Y: " + percentY);
+			
 			percentX = Mathf.Clamp01(percentX);
 			percentY = Mathf.Clamp01(percentY);
 			

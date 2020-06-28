@@ -4,13 +4,15 @@ public class Node
 {
 	public bool walkable;
 	public Vector3 worldPos;
+	public Vector2Int nodeIndex;
 	public byte cost;
 	public ushort bestCost;
 	
-	public Node(bool _walkable, Vector3 _worldPos)
+	public Node(bool _walkable, Vector3 _worldPos, Vector2Int _nodeIndex)
 	{
 		walkable = _walkable;
 		worldPos = _worldPos;
+		nodeIndex = _nodeIndex;
 		cost = 1;
 		bestCost = ushort.MaxValue;
 	}
