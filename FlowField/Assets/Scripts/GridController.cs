@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace TMG.FlowField
@@ -69,7 +70,7 @@ namespace TMG.FlowField
 					Gizmos.color = n.walkable ? walkableColor : Color.red;
 					if (n.cost == 0) { Gizmos.color = Color.yellow; }
 					Gizmos.DrawCube(n.worldPos, Vector3.one * ((nodeRadius * 2) - 0.1f));
-
+					Handles.Label(n.worldPos, n.bestCost.ToString());
 					if (displayFF)
 					{
 						Gizmos.color = Color.white;

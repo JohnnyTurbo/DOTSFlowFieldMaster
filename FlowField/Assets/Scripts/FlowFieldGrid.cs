@@ -54,9 +54,9 @@ namespace TMG.FlowField
 				foreach(Node curNeighbor in curNeighbors)
 				{
 					if(curNeighbor.cost == byte.MaxValue) { continue; }
-					if(curNeighbor.cost + curNode.cost < curNeighbor.bestCost)
+					if(curNeighbor.cost + curNode.bestCost < curNeighbor.bestCost)
 					{
-						curNeighbor.bestCost = (ushort) (curNeighbor.cost + curNode.cost);
+						curNeighbor.bestCost = (ushort) (curNeighbor.cost + curNode.bestCost);
 						nodes.Enqueue(curNeighbor);
 					}
 				}
@@ -95,19 +95,7 @@ namespace TMG.FlowField
 			return grid[x, y];
 		}
 
-		private Node GetNodeAtRelativePos(Vector2Int orignPos, Vector2Int relativePos)
-		{
-			Vector2Int finalPos = orignPos + relativePos;
-
-			if(finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y)
-			{
-				return null;
-			}
-
-			else { return grid[finalPos.x, finalPos.y]; }
-		}
-
-		private List<Node> GetNeighborNodes(Vector2Int nodeIndex, List<GridDirection> directions)
+		public List<Node> GetNeighborNodes(Vector2Int nodeIndex, List<GridDirection> directions)
 		{
 			List<Node> neighborNodes = new List<Node>();
 
@@ -121,6 +109,18 @@ namespace TMG.FlowField
 			}
 
 			return neighborNodes;
+		}
+
+		private Node GetNodeAtRelativePos(Vector2Int orignPos, Vector2Int relativePos)
+		{
+			Vector2Int finalPos = orignPos + relativePos;
+
+			if(finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y)
+			{
+				return null;
+			}
+
+			else { return grid[finalPos.x, finalPos.y]; }
 		}
 	}
 }
