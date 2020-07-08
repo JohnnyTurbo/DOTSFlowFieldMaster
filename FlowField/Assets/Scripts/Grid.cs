@@ -5,67 +5,25 @@ using UnityEngine;
 
 namespace TMG.FlowField
 {
-	public class Grid : MonoBehaviour
+	public class Grid
 	{
-		public Vector2Int gridSize;
-		public float nodeRadius = 1;
+		public Node[,] grid { get; private set; }
+		private float nodeRadius;
+		private float nodeDiameter;
+		private Vector2Int gridSize;
 
-		Node[,] grid;
-		Vector2Int[] cardinalDirections = { new Vector2Int(0, 1), new Vector2Int(1,0), new Vector2Int(0, -1), new Vector2Int(-1, 0) };
-		Vector2Int[] eightDirections = { new Vector2Int(0, 1), new Vector2Int(1, 1), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(0, -1), new Vector2Int(-1, -1), new Vector2Int(-1, 0), new Vector2Int(-1, 1) };
-
-		Node goalNode;
-		float nodeDiameter;
-		bool displayFF;
-
-		private void Start()
+		public Grid(float _nodeRadius, Vector2Int _gridSize)
 		{
-			nodeDiameter = nodeRadius * 2;
-			CreateGrid();
+			nodeRadius = _nodeRadius;
+			nodeDiameter = _nodeRadius * 2;
+			gridSize = _gridSize;
 		}
 
-		private void Update()
-		{
-			if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetMouseButtonDown(0))
-			{
-				//Debug.Log("Ctrl + Click");
-				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
-				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = GetNodeFromWorldPos(worldMousePos);
-				curNode.MakeImpassible();
-			}
-
-			else if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButtonDown(0))
-			{
-				//Debug.Log("Alt + Click");
-				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
-				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = GetNodeFromWorldPos(worldMousePos);
-				curNode.IncreaseCost(10);
-			}
-
-			else if (Input.GetMouseButtonDown(0))
-			{
-				//Debug.Log("Click");
-				//Set goal & recalc cost
-				if(goalNode != null) { goalNode.cost = 1; }
-				
-				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
-				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = GetNodeFromWorldPos(worldMousePos);
-				curNode.cost = 0;
-				goalNode = curNode;
-
-				CreateIntegrationField();
-				CreateFlowField();
-			}
-		}
-
-		private void CreateFlowField()
+		public void CreateFlowField()
 		{
 			foreach(Node curNode in grid)
 			{
-				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, eightDirections);
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.CardinalAndIntercardinalDirections);
 
 				int bestCost = curNode.bestCost;
 				
@@ -78,10 +36,9 @@ namespace TMG.FlowField
 					}
 				}
 			}
-			displayFF = true;
 		}
 
-		private void CreateIntegrationField()
+		public void CreateIntegrationField(Node goalNode)
 		{
 			foreach(Node n in grid)
 			{
@@ -90,7 +47,6 @@ namespace TMG.FlowField
 
 			goalNode.bestCost = 0;
 
-			//List<Node> openList = new List<Node>();
 			Queue<Node> nodes = new Queue<Node>();
 
 			nodes.Enqueue(goalNode);
@@ -98,7 +54,7 @@ namespace TMG.FlowField
 			while(nodes.Count > 0)
 			{
 				Node curNode = nodes.Dequeue();
-				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, cardinalDirections);
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.CardinalDirections);
 				foreach(Node curNeighbor in curNeighbors)
 				{
 					if(curNeighbor.cost == byte.MaxValue) { continue; }
@@ -111,7 +67,7 @@ namespace TMG.FlowField
 			}
 		}
 
-		private List<Node> GetNeighborNodes(Vector2Int nodeIndex, Vector2Int[] directions)
+		private List<Node> GetNeighborNodes(Vector2Int nodeIndex, List<GridDirection> directions)
 		{
 			List<Node> neighborNodes = new List<Node>();
 
@@ -139,7 +95,7 @@ namespace TMG.FlowField
 			else { return grid[finalPos.x, finalPos.y]; }
 		}
 
-		private void CreateGrid()
+		public void CreateGrid()
 		{
 			//Debug.Log("Creating Grid");
 			grid = new Node[gridSize.x, gridSize.y];
@@ -154,29 +110,7 @@ namespace TMG.FlowField
 			}
 		}
 
-		void OnDrawGizmos()
-		{		
-			if(grid != null)
-			{				
-				foreach (Node n in grid)
-				{
-					float greenLevel = (float)(256f - n.cost) / 256f;
-					Color walkableColor = new Color(0, greenLevel, 0);
-					Gizmos.color = n.walkable ? walkableColor : Color.red;
-					if(n.cost == 0) { Gizmos.color = Color.yellow; }
-					Gizmos.DrawCube(n.worldPos, Vector3.one * (nodeDiameter - 0.1f));
-
-					if (displayFF)
-					{
-						Gizmos.color = Color.white;
-						Vector3 endLinePos = new Vector3(n.worldPos.x + n.bestDirection.x, 3, n.worldPos.z + n.bestDirection.y);
-						Gizmos.DrawLine(n.worldPos, endLinePos);
-					}
-				}
-			}
-		}
-
-		Node GetNodeFromWorldPos(Vector3 worldPos)
+		public Node GetNodeFromWorldPos(Vector3 worldPos)
 		{
 			float percentX = worldPos.x / (gridSize.x * nodeDiameter);
 			float percentY = worldPos.z / (gridSize.y * nodeDiameter);
