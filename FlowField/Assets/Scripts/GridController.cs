@@ -60,7 +60,7 @@ namespace TMG.FlowField
 
 		void OnDrawGizmos()
 		{
-			if (sceneGrid.grid != null)
+			if (Application.isPlaying && sceneGrid.grid != null)
 			{
 				foreach (Node n in sceneGrid.grid)
 				{
