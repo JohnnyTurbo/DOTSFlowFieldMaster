@@ -12,11 +12,11 @@ namespace TMG.FlowField
 
         Node goalNode;
         bool displayFF;
-		Grid sceneGrid;
+		FlowFieldGrid sceneGrid;
 
 		void Start()
         {
-            sceneGrid = new Grid(nodeRadius, gridSize);
+            sceneGrid = new FlowFieldGrid(nodeRadius, gridSize);
 			sceneGrid.CreateGrid();
         }
 
