@@ -67,7 +67,8 @@ namespace TMG.FlowField
 		{
 			foreach(Node curNode in grid)
 			{
-				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.CardinalAndIntercardinalDirections);
+				curNode.bestDirection = GridDirection.None;
+				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.AllDirections);
 
 				int bestCost = curNode.bestCost;
 				
@@ -76,7 +77,7 @@ namespace TMG.FlowField
 					if(curNeighbor.bestCost < bestCost)
 					{
 						bestCost = curNeighbor.bestCost;
-						curNode.bestDirection = curNeighbor.nodeIndex - curNode.nodeIndex;
+						curNode.bestDirection = GridDirection.GetDirectionFromV2I(curNeighbor.nodeIndex - curNode.nodeIndex);
 					}
 				}
 			}

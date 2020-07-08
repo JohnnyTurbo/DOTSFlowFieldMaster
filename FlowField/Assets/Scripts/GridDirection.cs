@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TMG.FlowField
@@ -16,6 +17,11 @@ namespace TMG.FlowField
         public static implicit operator Vector2Int(GridDirection direction)
 		{
             return direction.Vector;
+		}
+
+        public static GridDirection GetDirectionFromV2I(Vector2Int vector)
+		{
+            return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => direction == vector);
 		}
 
         public static readonly GridDirection None = new GridDirection(0, 0);

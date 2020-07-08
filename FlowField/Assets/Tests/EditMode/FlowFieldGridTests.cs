@@ -104,5 +104,27 @@ namespace Tests
                 Assert.AreEqual(curNode.nodeIndex.x + curNode.nodeIndex.y, curNode.bestCost);
 			}
         }
+
+        [Test]
+        public void Test_Integration_Field_With_Costs()
+        {
+            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            testGrid.CreateGrid();
+            Node goalNode = testGrid.grid[0, 0];
+            Node testNode = testGrid.grid[5, 5];
+            testNode.IncreaseCost(10);
+
+            testGrid.CreateIntegrationField(goalNode);
+
+            foreach (Node curNode in testGrid.grid)
+            {
+                if (curNode.Equals(testNode))
+                {
+                    Assert.AreEqual(20, curNode.bestCost);
+                    continue;
+                }
+                Assert.AreEqual(curNode.nodeIndex.x + curNode.nodeIndex.y, curNode.bestCost);
+            }
+        }
     }
 }

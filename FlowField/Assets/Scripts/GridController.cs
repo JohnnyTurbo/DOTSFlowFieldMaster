@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace TMG.FlowField
@@ -70,13 +67,17 @@ namespace TMG.FlowField
 					Gizmos.color = n.walkable ? walkableColor : Color.red;
 					if (n.cost == 0) { Gizmos.color = Color.yellow; }
 					Gizmos.DrawCube(n.worldPos, Vector3.one * ((nodeRadius * 2) - 0.1f));
-					Handles.Label(n.worldPos, n.bestCost.ToString());
+					
 					if (displayFF)
 					{
 						Gizmos.color = Color.white;
-						Vector3 endLinePos = new Vector3(n.worldPos.x + n.bestDirection.x, 3, n.worldPos.z + n.bestDirection.y);
-						Gizmos.DrawLine(n.worldPos, endLinePos);
+						if (n.bestDirection != GridDirection.None)
+						{
+							Vector3 endLinePos = new Vector3(n.worldPos.x + n.bestDirection.Vector.x, 3, n.worldPos.z + n.bestDirection.Vector.y);
+							Gizmos.DrawLine(n.worldPos + (Vector3.up * 3), endLinePos);
+						}
 					}
+					Handles.Label(n.worldPos + Vector3.up, n.bestCost.ToString());
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using UnityEngine;
+using TMG.FlowField;
 
 namespace Tests
 {
