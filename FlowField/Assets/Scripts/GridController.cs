@@ -1,5 +1,8 @@
-﻿using UnityEditor;
+﻿using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
+
+using Debug = UnityEngine.Debug;
 
 namespace TMG.FlowField
 {
@@ -7,18 +10,19 @@ namespace TMG.FlowField
     {
         public Vector2Int gridSize;
         public float nodeRadius = 1;
+        public bool displayGrid;
 
         Node goalNode;
-        bool displayFF;
 		FlowFieldGrid sceneGrid;
 
-		void Start()
-        {
-            sceneGrid = new FlowFieldGrid(nodeRadius, gridSize);
+		private void GenerateNewGrid()
+		{
+			Debug.Log($"Generating grid of size: {gridSize.ToString()}");
+			sceneGrid = new FlowFieldGrid(nodeRadius, gridSize);
 			sceneGrid.CreateGrid();
-        }
+		}
 
-        void Update()
+		void Update()
         {
 			if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetMouseButtonDown(0))
 			{
@@ -42,53 +46,51 @@ namespace TMG.FlowField
 			{
 				//Debug.Log("Click");
 				//Set goal & recalc cost
+				if(sceneGrid == null || sceneGrid.gridSize != gridSize)
+				{
+					GenerateNewGrid();
+				}
+
 				if (goalNode != null) 
 				{
 					goalNode.isDestination = false;
 					goalNode.cost = 1; 
 				}
 
-				sceneGrid.CreateCostField();
+				Stopwatch st = new Stopwatch();
+				st.Start();
 
+				sceneGrid.CreateCostField();
+				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
 				goalNode = curNode;
 				goalNode.cost = 0;
 				goalNode.isDestination = true;
-
+				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
 				sceneGrid.CreateIntegrationField(goalNode);
+				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
 				sceneGrid.CreateFlowField();
-				displayFF = false;
+
+				st.Stop();
+				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
 			}
 		}
 
-		/*
 		void OnDrawGizmos()
 		{
-			if (Application.isPlaying && sceneGrid.grid != null)
+			if (!displayGrid) { return; }
+			Gizmos.color = Color.green;
+			for (int x = 0; x < gridSize.x; x++)
 			{
-				foreach (Node n in sceneGrid.grid)
+				for(int y = 0; y < gridSize.y; y++)
 				{
-					float greenLevel = (float)(256f - n.cost) / 256f;
-					Color walkableColor = new Color(0, greenLevel, 0);
-					Gizmos.color = n.walkable ? walkableColor : Color.red;
-					if (n.cost == 0) { Gizmos.color = Color.yellow; }
-					Gizmos.DrawCube(n.worldPos, Vector3.one * ((nodeRadius * 2) - 0.1f));
-					
-					if (displayFF)
-					{
-						Gizmos.color = Color.white;
-						if (n.bestDirection != GridDirection.None)
-						{
-							Vector3 endLinePos = new Vector3(n.worldPos.x + n.bestDirection.Vector.x, 3, n.worldPos.z + n.bestDirection.Vector.y);
-							Gizmos.DrawLine(n.worldPos + (Vector3.up * 3), endLinePos);
-						}
-					}
-					Handles.Label(n.worldPos + Vector3.up, n.bestCost.ToString());
+					Vector3 center = new Vector3(nodeRadius * 2 * x + nodeRadius, 0, nodeRadius * 2 * y + nodeRadius);
+					Vector3 size = Vector3.one * nodeRadius * 2;
+					Gizmos.DrawWireCube(center, size);
 				}
 			}
 		}
-		*/
 	}
 }

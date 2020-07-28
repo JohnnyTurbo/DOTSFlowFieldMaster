@@ -8,9 +8,9 @@ namespace TMG.FlowField
 	public class FlowFieldGrid
 	{
 		public Node[,] grid { get; private set; }
+		public Vector2Int gridSize { get; private set; }
 		private float nodeRadius;
 		private float nodeDiameter;
-		private Vector2Int gridSize;
 		private Sprite[] ffIcons;
 		private GameObject iconContainer;
 
@@ -53,7 +53,7 @@ namespace TMG.FlowField
 					}
 					else if(col.gameObject.layer == 9)
 					{
-						curNode.IncreaseCost(10);
+						curNode.IncreaseCost(3);
 					}
 				}
 			}
