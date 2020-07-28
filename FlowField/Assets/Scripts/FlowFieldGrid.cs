@@ -12,6 +12,7 @@ namespace TMG.FlowField
 		private float nodeDiameter;
 		private Vector2Int gridSize;
 		private Sprite[] ffIcons;
+		private GameObject iconContainer;
 
 		public FlowFieldGrid(float _nodeRadius, Vector2Int _gridSize)
 		{
@@ -19,13 +20,7 @@ namespace TMG.FlowField
 			nodeDiameter = _nodeRadius * 2;
 			gridSize = _gridSize;
 			ffIcons = Resources.LoadAll<Sprite>("Sprites/FFicons");
-			/*
-			ffIcons = new Sprite[4];
-			ffIcons[0] = Resources.Load<Sprite>("Sprites/FFIcons_0");
-			ffIcons[1] = Resources.Load<Sprite>("Sprites/FFIcons_1");
-			ffIcons[2] = Resources.Load<Sprite>("Sprites/FFIcons_2");
-			ffIcons[3] = Resources.Load<Sprite>("Sprites/FFIcons_3");
-			*/
+			iconContainer = new GameObject();
 		}
 
 		public void CreateGrid()
@@ -39,6 +34,27 @@ namespace TMG.FlowField
 				{
 					Vector3 worldPos = new Vector3(nodeDiameter * x + nodeRadius, 0, nodeDiameter * y + nodeRadius);
 					grid[x, y] = new Node(true, worldPos, new Vector2Int(x,y));
+				}
+			}
+		}
+
+		public void CreateCostField()
+		{
+			Vector3 nodeHalfExtents = Vector3.one * nodeRadius;
+			int terrainMask = LayerMask.GetMask("Impassible", "Terrain");
+			foreach(Node curNode in grid)
+			{
+				Collider[] obstacles = Physics.OverlapBox(curNode.worldPos, nodeHalfExtents, Quaternion.identity, terrainMask);
+				foreach(Collider col in obstacles)
+				{
+					if(col.gameObject.layer == 8)
+					{
+						curNode.MakeImpassible();
+					}
+					else if(col.gameObject.layer == 9)
+					{
+						curNode.IncreaseCost(10);
+					}
 				}
 			}
 		}
@@ -74,6 +90,7 @@ namespace TMG.FlowField
 
 		public void CreateFlowField()
 		{
+			ClearNodeDisplay();
 			foreach(Node curNode in grid)
 			{
 				curNode.bestDirection = GridDirection.None;
@@ -141,6 +158,7 @@ namespace TMG.FlowField
 		{
 			GameObject iconGO = new GameObject();
 			SpriteRenderer iconSR = iconGO.AddComponent<SpriteRenderer>();
+			iconGO.transform.parent = iconContainer.transform;
 			iconGO.transform.position = nodeToDisplay.worldPos;
 
 			if (nodeToDisplay.isDestination)
@@ -206,6 +224,14 @@ namespace TMG.FlowField
 			else
 			{
 				iconSR.sprite = ffIcons[0];
+			}
+		}
+
+		public void ClearNodeDisplay()
+		{
+			foreach(Transform t in iconContainer.transform)
+			{
+				GameObject.Destroy(t.gameObject);
 			}
 		}
 	}

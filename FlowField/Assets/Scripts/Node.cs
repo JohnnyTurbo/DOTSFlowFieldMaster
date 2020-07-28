@@ -4,7 +4,7 @@ namespace TMG.FlowField
 {
 	public class Node
 	{
-		public bool walkable;
+		public bool walkable { get; private set; }
 		public bool isDestination;
 		public Vector3 worldPos;
 		public Vector2Int nodeIndex;

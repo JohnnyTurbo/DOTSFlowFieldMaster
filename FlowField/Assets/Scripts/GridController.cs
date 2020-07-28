@@ -48,6 +48,8 @@ namespace TMG.FlowField
 					goalNode.cost = 1; 
 				}
 
+				sceneGrid.CreateCostField();
+
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
