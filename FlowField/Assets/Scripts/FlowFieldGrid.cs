@@ -11,12 +11,21 @@ namespace TMG.FlowField
 		private float nodeRadius;
 		private float nodeDiameter;
 		private Vector2Int gridSize;
+		private Sprite[] ffIcons;
 
 		public FlowFieldGrid(float _nodeRadius, Vector2Int _gridSize)
 		{
 			nodeRadius = _nodeRadius;
 			nodeDiameter = _nodeRadius * 2;
 			gridSize = _gridSize;
+			ffIcons = Resources.LoadAll<Sprite>("Sprites/FFicons");
+			/*
+			ffIcons = new Sprite[4];
+			ffIcons[0] = Resources.Load<Sprite>("Sprites/FFIcons_0");
+			ffIcons[1] = Resources.Load<Sprite>("Sprites/FFIcons_1");
+			ffIcons[2] = Resources.Load<Sprite>("Sprites/FFIcons_2");
+			ffIcons[3] = Resources.Load<Sprite>("Sprites/FFIcons_3");
+			*/
 		}
 
 		public void CreateGrid()
@@ -68,18 +77,22 @@ namespace TMG.FlowField
 			foreach(Node curNode in grid)
 			{
 				curNode.bestDirection = GridDirection.None;
-				List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.AllDirections);
-
-				int bestCost = curNode.bestCost;
-				
-				foreach(Node curNeighbor in curNeighbors)
+				if (curNode.walkable)
 				{
-					if(curNeighbor.bestCost < bestCost)
+					List<Node> curNeighbors = GetNeighborNodes(curNode.nodeIndex, GridDirection.AllDirections);
+
+					int bestCost = curNode.bestCost;
+
+					foreach (Node curNeighbor in curNeighbors)
 					{
-						bestCost = curNeighbor.bestCost;
-						curNode.bestDirection = GridDirection.GetDirectionFromV2I(curNeighbor.nodeIndex - curNode.nodeIndex);
+						if (curNeighbor.bestCost < bestCost)
+						{
+							bestCost = curNeighbor.bestCost;
+							curNode.bestDirection = GridDirection.GetDirectionFromV2I(curNeighbor.nodeIndex - curNode.nodeIndex);
+						}
 					}
 				}
+				DisplayFFNode(curNode);
 			}
 		}
 
@@ -122,6 +135,78 @@ namespace TMG.FlowField
 			}
 
 			else { return grid[finalPos.x, finalPos.y]; }
+		}
+
+		private void DisplayFFNode(Node nodeToDisplay)
+		{
+			GameObject iconGO = new GameObject();
+			SpriteRenderer iconSR = iconGO.AddComponent<SpriteRenderer>();
+			iconGO.transform.position = nodeToDisplay.worldPos;
+
+			if (nodeToDisplay.isDestination)
+			{
+				iconSR.sprite = ffIcons[3];
+				Quaternion newRot = Quaternion.Euler(90, 0, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.None)
+			{
+				iconSR.sprite = ffIcons[2];
+				Quaternion newRot = Quaternion.Euler(90, 0, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if(nodeToDisplay.bestDirection == GridDirection.North)
+			{
+				iconSR.sprite = ffIcons[0];
+				Quaternion newRot = Quaternion.Euler(90, 0, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.South)
+			{
+				iconSR.sprite = ffIcons[0];
+				Quaternion newRot = Quaternion.Euler(90, 180, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.East)
+			{
+				iconSR.sprite = ffIcons[0];
+				Quaternion newRot = Quaternion.Euler(90, 90, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.West)
+			{
+				iconSR.sprite = ffIcons[0];
+				Quaternion newRot = Quaternion.Euler(90, 270, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.NorthEast)
+			{
+				iconSR.sprite = ffIcons[1];
+				Quaternion newRot = Quaternion.Euler(90, 0, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.NorthWest)
+			{
+				iconSR.sprite = ffIcons[1];
+				Quaternion newRot = Quaternion.Euler(90, 270, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.SouthEast)
+			{
+				iconSR.sprite = ffIcons[1];
+				Quaternion newRot = Quaternion.Euler(90, 90, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else if (nodeToDisplay.bestDirection == GridDirection.SouthWest)
+			{
+				iconSR.sprite = ffIcons[1];
+				Quaternion newRot = Quaternion.Euler(90, 180, 0);
+				iconGO.transform.rotation = newRot;
+			}
+			else
+			{
+				iconSR.sprite = ffIcons[0];
+			}
 		}
 	}
 }

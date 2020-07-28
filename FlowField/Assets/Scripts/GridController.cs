@@ -42,20 +42,26 @@ namespace TMG.FlowField
 			{
 				//Debug.Log("Click");
 				//Set goal & recalc cost
-				if (goalNode != null) { goalNode.cost = 1; }
+				if (goalNode != null) 
+				{
+					goalNode.isDestination = false;
+					goalNode.cost = 1; 
+				}
 
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
-				curNode.cost = 0;
 				goalNode = curNode;
+				goalNode.cost = 0;
+				goalNode.isDestination = true;
 
 				sceneGrid.CreateIntegrationField(goalNode);
 				sceneGrid.CreateFlowField();
-				displayFF = true;
+				displayFF = false;
 			}
 		}
 
+		/*
 		void OnDrawGizmos()
 		{
 			if (Application.isPlaying && sceneGrid.grid != null)
@@ -81,5 +87,6 @@ namespace TMG.FlowField
 				}
 			}
 		}
+		*/
 	}
 }

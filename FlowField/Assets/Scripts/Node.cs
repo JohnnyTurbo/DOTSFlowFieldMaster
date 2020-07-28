@@ -5,6 +5,7 @@ namespace TMG.FlowField
 	public class Node
 	{
 		public bool walkable;
+		public bool isDestination;
 		public Vector3 worldPos;
 		public Vector2Int nodeIndex;
 		public GridDirection bestDirection;
@@ -14,6 +15,7 @@ namespace TMG.FlowField
 		public Node(bool _walkable, Vector3 _worldPos, Vector2Int _nodeIndex)
 		{
 			walkable = _walkable;
+			isDestination = false;
 			worldPos = _worldPos;
 			nodeIndex = _nodeIndex;
 			cost = 1;
