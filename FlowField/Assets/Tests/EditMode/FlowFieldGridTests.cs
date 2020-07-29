@@ -127,5 +127,41 @@ namespace Tests
                 curNode.bestCost.Should().Be(expectedValue);
             }
         }
+
+        [Test]
+        public void Test_Getting_Node_From_World_Position()
+		{
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
+            testGrid.CreateGrid();
+            Vector3 worldPos = new Vector3(0.5f, 0, 0.5f);
+            Node testNode = testGrid.GetNodeFromWorldPos(worldPos);
+            Node expectedNode = testGrid.grid[0, 0];
+
+            testNode.Should().Be(expectedNode);
+		}
+
+        [Test]
+        public void Test_Getting_Node_From_World_Position_Off_Grid_Min()
+        {
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
+            testGrid.CreateGrid();
+            Vector3 worldPos = new Vector3(-5f, 0, -5f);
+            Node testNode = testGrid.GetNodeFromWorldPos(worldPos);
+            Node expectedNode = testGrid.grid[0, 0];
+
+            testNode.Should().Be(expectedNode);
+        }
+
+        [Test]
+        public void Test_Getting_Node_From_World_Position_Off_Grid_Max()
+        {
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
+            testGrid.CreateGrid();
+            Vector3 worldPos = new Vector3(100f, 0, 100f);
+            Node testNode = testGrid.GetNodeFromWorldPos(worldPos);
+            Node expectedNode = testGrid.grid[9, 9];
+
+            testNode.Should().Be(expectedNode);
+        }
     }
 }

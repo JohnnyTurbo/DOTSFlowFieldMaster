@@ -7,7 +7,7 @@ namespace Tests
 	{
 		private float nodeRadius;
 		private Vector2Int gridSize;
-		
+
 		public FlowFieldBuilder WithNodeRadius(float radius)
 		{
 			nodeRadius = radius;
