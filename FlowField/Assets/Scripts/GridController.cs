@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
-
+using UnityEngine.Assertions.Must;
 using Debug = UnityEngine.Debug;
 
 namespace TMG.FlowField
@@ -11,9 +11,10 @@ namespace TMG.FlowField
         public Vector2Int gridSize;
         public float nodeRadius = 1;
         public bool displayGrid;
+		public FlowFieldGrid sceneGrid;
+		
 
         Node goalNode;
-		FlowFieldGrid sceneGrid;
 
 		private void GenerateNewGrid()
 		{
@@ -22,6 +23,7 @@ namespace TMG.FlowField
 			sceneGrid.CreateGrid();
 		}
 
+		
 		void Update()
         {
 			if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetMouseButtonDown(0))
@@ -61,16 +63,15 @@ namespace TMG.FlowField
 				st.Start();
 
 				sceneGrid.CreateCostField();
-				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
+
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
 				goalNode = curNode;
 				goalNode.cost = 0;
 				goalNode.isDestination = true;
-				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
+
 				sceneGrid.CreateIntegrationField(goalNode);
-				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
 				sceneGrid.CreateFlowField();
 
 				st.Stop();

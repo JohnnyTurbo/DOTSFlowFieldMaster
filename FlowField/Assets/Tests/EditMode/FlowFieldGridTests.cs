@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using TMG.FlowField;
 using UnityEngine;
-using UnityEngine.TestTools;
 using System.Collections.Generic;
+using FluentAssertions;
 
 namespace Tests
 {
@@ -11,28 +11,28 @@ namespace Tests
         [Test]
         public void Create_Grid()
         {
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
-            Assert.AreEqual(100, testGrid.grid.Length);
+            testGrid.grid.Length.Should().Be(100);
         }
 
         [Test]
         public void Check_Walkable_Node()
         {
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
             Node testNode = testGrid.grid[5, 5];
 
             Node goalNode = testGrid.grid[0, 0];
             testGrid.CreateIntegrationField(goalNode);
 
-            Assert.AreNotEqual(ushort.MaxValue, testNode.bestCost);
+            testNode.bestCost.Should().NotBe(ushort.MaxValue);
         }
 
         [Test]
         public void Check_Impassible_Node()
         {
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
             Node testNode = testGrid.grid[5, 5];
             testNode.MakeImpassible();
@@ -40,13 +40,13 @@ namespace Tests
             Node goalNode = testGrid.grid[0, 0];
             testGrid.CreateIntegrationField(goalNode);
 
-            Assert.AreEqual(ushort.MaxValue, testNode.bestCost);
+            testNode.bestCost.Should().Be(ushort.MaxValue);
         }
 
         [Test]
         public void Get_Node_At_Relative_Pos()
 		{
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
 
             Vector2Int originVector = new Vector2Int(5, 5);
@@ -60,14 +60,13 @@ namespace Tests
                 Vector2Int curIndex = originVector + curDirection;
                 expectedNodes.Add(testGrid.grid[curIndex.x, curIndex.y]);
 			}
-
-            Assert.AreEqual(expectedNodes, neighborNodes);
+            neighborNodes.Should().BeEquivalentTo(expectedNodes);
         }
 
         [Test]
         public void Get_Node_At_Relative_Pos_On_Corner_Nodes()
         {
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
 
             Vector2Int originVector1 = new Vector2Int(0, 0);
@@ -86,14 +85,14 @@ namespace Tests
             expectedNodes2.Add(testGrid.grid[8, 8]);
             expectedNodes2.Add(testGrid.grid[8, 9]);
 
-            Assert.AreEqual(expectedNodes1, neighborNodes1);
-            Assert.AreEqual(expectedNodes2, neighborNodes2);
+            neighborNodes1.Should().BeEquivalentTo(expectedNodes1);
+            neighborNodes2.Should().BeEquivalentTo(neighborNodes2);
         }
 
         [Test]
         public void Test_Integration_Field()
 		{
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
             Node goalNode = testGrid.grid[0, 0];
 
@@ -101,14 +100,15 @@ namespace Tests
 
             foreach(Node curNode in testGrid.grid)
 			{
-                Assert.AreEqual(curNode.nodeIndex.x + curNode.nodeIndex.y, curNode.bestCost);
+                ushort expectedValue = (ushort)(curNode.nodeIndex.x + curNode.nodeIndex.y);
+                curNode.bestCost.Should().Be(expectedValue);
 			}
         }
 
         [Test]
         public void Test_Integration_Field_With_Costs()
         {
-            FlowFieldGrid testGrid = new FlowFieldGrid(0.5f, new Vector2Int(10, 10));
+            FlowFieldGrid testGrid = A.FlowField.WithNodeRadius(0.5f).WithSize(10, 10);
             testGrid.CreateGrid();
             Node goalNode = testGrid.grid[0, 0];
             Node testNode = testGrid.grid[5, 5];
@@ -120,10 +120,11 @@ namespace Tests
             {
                 if (curNode.Equals(testNode))
                 {
-                    Assert.AreEqual(20, curNode.bestCost);
+                    curNode.bestCost.Should().Be(20);
                     continue;
                 }
-                Assert.AreEqual(curNode.nodeIndex.x + curNode.nodeIndex.y, curNode.bestCost);
+                ushort expectedValue = (ushort)(curNode.nodeIndex.x + curNode.nodeIndex.y);
+                curNode.bestCost.Should().Be(expectedValue);
             }
         }
     }

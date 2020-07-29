@@ -120,9 +120,9 @@ namespace TMG.FlowField
 			
 			percentX = Mathf.Clamp01(percentX);
 			percentY = Mathf.Clamp01(percentY);
-			
-			int x = Mathf.FloorToInt((gridSize.x) * percentX);
-			int y = Mathf.FloorToInt((gridSize.y) * percentY);
+
+			int x = Mathf.Clamp(Mathf.FloorToInt((gridSize.x) * percentX), 0, gridSize.x);
+			int y = Mathf.Clamp(Mathf.FloorToInt((gridSize.y) * percentY), 0, gridSize.y);
 			return grid[x, y];
 		}
 
