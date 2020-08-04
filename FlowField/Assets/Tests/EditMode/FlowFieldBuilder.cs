@@ -5,12 +5,12 @@ namespace Tests
 {
 	public class FlowFieldBuilder
 	{
-		private float nodeRadius;
+		private float cellRadius;
 		private Vector2Int gridSize;
 
-		public FlowFieldBuilder WithNodeRadius(float radius)
+		public FlowFieldBuilder WithCellRadius(float radius)
 		{
-			nodeRadius = radius;
+			cellRadius = radius;
 			return this;
 		}
 
@@ -20,12 +20,12 @@ namespace Tests
 			return this;
 		}
 
-		public FlowFieldGrid Build()
+		public FlowField Build()
 		{
-			return new FlowFieldGrid(nodeRadius, gridSize);
+			return new FlowField(cellRadius, gridSize);
 		}
 
-		public static implicit operator FlowFieldGrid(FlowFieldBuilder builder)
+		public static implicit operator FlowField(FlowFieldBuilder builder)
 		{
 			return builder.Build();
 		}

@@ -33,10 +33,10 @@ namespace TMG.FlowField {
 
 		private void FixedUpdate()
 		{
-			if(gridController.sceneGrid == null) { return; }
+			if(gridController.curFlowField == null) { return; }
 			foreach(GameObject unit in unitsInGame)
 			{
-				Node nodeBelow = gridController.sceneGrid.GetNodeFromWorldPos(unit.transform.position);
+				Cell nodeBelow = gridController.curFlowField.GetCellFromWorldPos(unit.transform.position);
 				Vector3 moveDirection = new Vector3(nodeBelow.bestDirection.Vector.x, 0, nodeBelow.bestDirection.Vector.y);
 				Rigidbody unitRB = unit.GetComponent<Rigidbody>();
 				unitRB.velocity = moveDirection * moveSpeed;
@@ -46,7 +46,7 @@ namespace TMG.FlowField {
 		private void SpawnUnits()
 		{
 			Vector2Int gridSize = gridController.gridSize;
-			float nodeRadius = gridController.nodeRadius;
+			float nodeRadius = gridController.cellRadius;
 			Vector2 maxSpawnPos = new Vector2(gridSize.x * nodeRadius * 2 + nodeRadius, gridSize.y * nodeRadius * 2 + nodeRadius);
 			int colMask = LayerMask.GetMask("Impassible", "Units");
 			Vector3 newPos = new Vector3();

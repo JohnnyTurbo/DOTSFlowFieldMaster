@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using Debug = UnityEngine.Debug;
 
 namespace TMG.FlowField
@@ -9,18 +8,22 @@ namespace TMG.FlowField
     public class GridController : MonoBehaviour
     {
         public Vector2Int gridSize;
-        public float nodeRadius = 1;
+        public float cellRadius = 1;
         public bool displayGrid;
-		public FlowFieldGrid sceneGrid;
+		public bool displayFF;
+		public bool displayGoal;
+		public bool displayCF;
+		public bool displayIF;
+		public FlowField curFlowField;
 		
 
-        Node goalNode;
+        Cell destinationCell;
 
 		private void GenerateNewGrid()
 		{
 			Debug.Log($"Generating grid of size: {gridSize.ToString()}");
-			sceneGrid = new FlowFieldGrid(nodeRadius, gridSize);
-			sceneGrid.CreateGrid();
+			curFlowField = new FlowField(cellRadius, gridSize);
+			curFlowField.CreateGrid();
 		}
 
 		
@@ -31,8 +34,8 @@ namespace TMG.FlowField
 				//Debug.Log("Ctrl + Click");
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
-				curNode.MakeImpassible();
+				Cell curCell = curFlowField.GetCellFromWorldPos(worldMousePos);
+				curCell.MakeImpassible();
 			}
 
 			else if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetMouseButtonDown(0))
@@ -40,39 +43,34 @@ namespace TMG.FlowField
 				//Debug.Log("Alt + Click");
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
-				curNode.IncreaseCost(10);
+				Cell curCell = curFlowField.GetCellFromWorldPos(worldMousePos);
+				curCell.IncreaseCost(10);
 			}
 
 			else if (Input.GetMouseButtonDown(0))
 			{
-				//Debug.Log("Click");
-				//Set goal & recalc cost
-				if(sceneGrid == null || sceneGrid.gridSize != gridSize)
+				if(curFlowField == null || curFlowField.gridSize != gridSize)
 				{
 					GenerateNewGrid();
 				}
-
-				if (goalNode != null) 
+				else
 				{
-					goalNode.isDestination = false;
-					goalNode.cost = 1; 
+					curFlowField.ResetGrid();
 				}
 
 				Stopwatch st = new Stopwatch();
 				st.Start();
 
-				sceneGrid.CreateCostField();
+				curFlowField.CreateCostField();
 
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Node curNode = sceneGrid.GetNodeFromWorldPos(worldMousePos);
-				goalNode = curNode;
-				goalNode.cost = 0;
-				goalNode.isDestination = true;
+				Cell curCell = curFlowField.GetCellFromWorldPos(worldMousePos);
+				destinationCell = curCell;
+				destinationCell.SetAsDestination();
 
-				sceneGrid.CreateIntegrationField(goalNode);
-				sceneGrid.CreateFlowField();
+				curFlowField.CreateIntegrationField(destinationCell);
+				curFlowField.CreateFlowField(displayFF, displayGoal);
 
 				st.Stop();
 				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
@@ -81,15 +79,39 @@ namespace TMG.FlowField
 
 		void OnDrawGizmos()
 		{
-			if (!displayGrid) { return; }
-			Gizmos.color = Color.green;
-			for (int x = 0; x < gridSize.x; x++)
+			if (displayGrid)
 			{
-				for(int y = 0; y < gridSize.y; y++)
+				Gizmos.color = Color.green;
+				for (int x = 0; x < gridSize.x; x++)
 				{
-					Vector3 center = new Vector3(nodeRadius * 2 * x + nodeRadius, 0, nodeRadius * 2 * y + nodeRadius);
-					Vector3 size = Vector3.one * nodeRadius * 2;
-					Gizmos.DrawWireCube(center, size);
+					for (int y = 0; y < gridSize.y; y++)
+					{
+						Vector3 center = new Vector3(cellRadius * 2 * x + cellRadius, 0, cellRadius * 2 * y + cellRadius);
+						Vector3 size = Vector3.one * cellRadius * 2;
+						Gizmos.DrawWireCube(center, size);
+					}
+				}
+			}
+
+			if (curFlowField != null)
+			{
+				GUIStyle style = new GUIStyle(GUI.skin.label);
+				style.alignment = TextAnchor.MiddleCenter;
+
+				if (displayCF)
+				{
+					foreach (Cell curCell in curFlowField.grid)
+					{
+						Handles.Label(curCell.worldPos, curCell.cost.ToString(), style);
+					}
+				}
+
+				else if (displayIF)
+				{
+					foreach (Cell curCell in curFlowField.grid)
+					{
+						Handles.Label(curCell.worldPos, curCell.bestCost.ToString(), style);
+					}
 				}
 			}
 		}
