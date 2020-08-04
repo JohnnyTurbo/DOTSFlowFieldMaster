@@ -11,18 +11,15 @@ namespace TMG.FlowField
 	{
 		public Cell[,] grid { get; private set; }
 		public Vector2Int gridSize { get; private set; }
-		private float cellRadius;
-		private float cellDiameter;
-		private Sprite[] ffIcons;
-		private GameObject iconContainer;
+		public float cellRadius;
+		public Cell destinationCell;
+		private float cellDiameter;	
 
 		public FlowField(float _cellRadius, Vector2Int _gridSize)
 		{
 			cellRadius = _cellRadius;
 			cellDiameter = _cellRadius * 2;
 			gridSize = _gridSize;
-			ffIcons = Resources.LoadAll<Sprite>("Sprites/FFicons");
-			iconContainer = new GameObject();
 		}
 
 		public void CreateGrid()
@@ -72,8 +69,9 @@ namespace TMG.FlowField
 			}
 		}
 
-		public void CreateIntegrationField(Cell destinationCell)
+		public void CreateIntegrationField(Cell _destinationCell)
 		{
+			destinationCell = _destinationCell;
 			foreach(Cell curCell in grid)
 			{
 				curCell.bestCost = ushort.MaxValue;
@@ -101,9 +99,8 @@ namespace TMG.FlowField
 			}
 		}
 
-		public void CreateFlowField(bool displayField, bool displayGoal)
+		public void CreateFlowField()
 		{
-			ClearCellDisplay();
 			foreach (Cell curCell in grid)
 			{
 				curCell.bestDirection = GridDirection.None;
@@ -119,11 +116,6 @@ namespace TMG.FlowField
 						bestCost = curNeighbor.bestCost;
 						curCell.bestDirection = GridDirection.GetDirectionFromV2I(curNeighbor.gridIndex - curCell.gridIndex);
 					}
-				}
-
-				if (displayField || (!displayField && displayGoal && curCell.isDestination))
-				{
-					DisplayCell(curCell);
 				}
 			}
 		}
@@ -167,87 +159,6 @@ namespace TMG.FlowField
 			}
 
 			else { return grid[finalPos.x, finalPos.y]; }
-		}
-
-		private void DisplayCell(Cell cell)
-		{
-			GameObject iconGO = new GameObject();
-			SpriteRenderer iconSR = iconGO.AddComponent<SpriteRenderer>();
-			iconGO.transform.parent = iconContainer.transform;
-			iconGO.transform.position = cell.worldPos;
-
-			if (cell.isDestination)
-			{
-				iconSR.sprite = ffIcons[3];
-				Quaternion newRot = Quaternion.Euler(90, 0, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (!cell.isWalkable)
-			{
-				iconSR.sprite = ffIcons[2];
-				Quaternion newRot = Quaternion.Euler(90, 0, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if(cell.bestDirection == GridDirection.North)
-			{
-				iconSR.sprite = ffIcons[0];
-				Quaternion newRot = Quaternion.Euler(90, 0, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.South)
-			{
-				iconSR.sprite = ffIcons[0];
-				Quaternion newRot = Quaternion.Euler(90, 180, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.East)
-			{
-				iconSR.sprite = ffIcons[0];
-				Quaternion newRot = Quaternion.Euler(90, 90, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.West)
-			{
-				iconSR.sprite = ffIcons[0];
-				Quaternion newRot = Quaternion.Euler(90, 270, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.NorthEast)
-			{
-				iconSR.sprite = ffIcons[1];
-				Quaternion newRot = Quaternion.Euler(90, 0, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.NorthWest)
-			{
-				iconSR.sprite = ffIcons[1];
-				Quaternion newRot = Quaternion.Euler(90, 270, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.SouthEast)
-			{
-				iconSR.sprite = ffIcons[1];
-				Quaternion newRot = Quaternion.Euler(90, 90, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else if (cell.bestDirection == GridDirection.SouthWest)
-			{
-				iconSR.sprite = ffIcons[1];
-				Quaternion newRot = Quaternion.Euler(90, 180, 0);
-				iconGO.transform.rotation = newRot;
-			}
-			else
-			{
-				iconSR.sprite = ffIcons[0];
-			}
-		}
-
-		public void ClearCellDisplay()
-		{
-			foreach(Transform t in iconContainer.transform)
-			{
-				GameObject.Destroy(t.gameObject);
-			}
-		}
+		}				
 	}
 }
