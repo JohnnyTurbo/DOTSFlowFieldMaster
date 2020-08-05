@@ -69,6 +69,8 @@ namespace TMG.FlowField
 
 				st.Stop();
 				Debug.Log($"FFTime: {st.ElapsedMilliseconds}");
+
+				gridDebug.DrawFlowField();
 			}
 		}
 	}

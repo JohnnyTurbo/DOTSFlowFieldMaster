@@ -406,10 +406,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridController: {fileID: 145894805}
   displayGrid: 1
-  displayFlowFieldIcons: 0
-  displayDestinationIcon: 0
-  displayCF: 0
-  displayIF: 0
+  curDisplayType: 0
 --- !u!1 &456687900
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Sirenix.OdinInspector;
 
 namespace TMG.FlowField
 {
+	public enum FlowFieldDisplayType { None, AllIcons, DestinationIcon, CostField, IntegrationField};
+
     public class GridDebug : MonoBehaviour
     {
 		public GridController gridController;
 		public bool displayGrid;
-		public bool displayFlowFieldIcons;
-		public bool displayDestinationIcon;
-		public bool displayCF;
-		public bool displayIF;
+
+		[OnValueChanged("DrawFlowField")]
+		public FlowFieldDisplayType curDisplayType;
 
 		private Vector2Int gridSize;
 		private float cellRadius;
@@ -30,6 +32,26 @@ namespace TMG.FlowField
 			curFlowField = newFlowField;
 			cellRadius = newFlowField.cellRadius;
 			gridSize = newFlowField.gridSize;
+		}
+
+		public void DrawFlowField()
+		{
+			Debug.Log("drawin");
+			ClearCellDisplay();
+
+			switch (curDisplayType)
+			{
+				case FlowFieldDisplayType.AllIcons:
+					DisplayAllCells();
+					break;
+
+				case FlowFieldDisplayType.DestinationIcon:
+					DisplayDestinationCell();
+					break;
+
+				default:
+					break;
+			}
 		}
 
 		private void DisplayAllCells()
@@ -127,26 +149,12 @@ namespace TMG.FlowField
 				GameObject.Destroy(t.gameObject);
 			}
 		}
-
-		private void OnValidate()
-		{
-			if (displayFlowFieldIcons)
-			{
-				ClearCellDisplay();
-				DisplayAllCells();
-			}
-			else if (displayDestinationIcon)
-			{
-				ClearCellDisplay();
-				DisplayDestinationCell();
-			}
-		}
-
+		
 		private void OnDrawGizmos()
 		{
 			if (displayGrid)
 			{
-				if(curFlowField == null)
+				if (curFlowField == null)
 				{
 					DrawGrid(gridController.gridSize, Color.yellow, gridController.cellRadius);
 				}
@@ -156,26 +164,31 @@ namespace TMG.FlowField
 				}
 			}
 
-			if (curFlowField != null)
-			{
-				GUIStyle style = new GUIStyle(GUI.skin.label);
-				style.alignment = TextAnchor.MiddleCenter;
+			if (curFlowField == null) { return; }
 
-				if (displayCF)
-				{
+			GUIStyle style = new GUIStyle(GUI.skin.label);
+			style.alignment = TextAnchor.MiddleCenter;
+
+			switch (curDisplayType)
+			{
+				case FlowFieldDisplayType.CostField:
+
 					foreach (Cell curCell in curFlowField.grid)
 					{
 						Handles.Label(curCell.worldPos, curCell.cost.ToString(), style);
 					}
-				}
+					break;
 
-				else if (displayIF)
-				{
+				case FlowFieldDisplayType.IntegrationField:
+
 					foreach (Cell curCell in curFlowField.grid)
 					{
 						Handles.Label(curCell.worldPos, curCell.bestCost.ToString(), style);
 					}
-				}
+					break;
+
+				default:
+					break;
 			}
 		}
 
