@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -14,7 +13,7 @@ namespace TMG.FlowField
 
         private Cell destinationCell;
 
-		private void GenerateNewGrid()
+		private void InitializeFlowField()
 		{
 			Debug.Log($"Generating grid of size: {gridSize.ToString()}");
 			curFlowField = new FlowField(cellRadius, gridSize);
@@ -46,11 +45,11 @@ namespace TMG.FlowField
 			{
 				if(curFlowField == null || curFlowField.gridSize != gridSize)
 				{
-					GenerateNewGrid();
+					InitializeFlowField();
 				}
 				else
 				{
-					curFlowField.ResetGrid();
+					curFlowField.Reset();
 				}
 
 				Stopwatch st = new Stopwatch();
@@ -60,11 +59,10 @@ namespace TMG.FlowField
 
 				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
-				Cell curCell = curFlowField.GetCellFromWorldPos(worldMousePos);
-				destinationCell = curCell;
+				destinationCell = curFlowField.GetCellFromWorldPos(worldMousePos);
 				destinationCell.SetAsDestination();
-
 				curFlowField.CreateIntegrationField(destinationCell);
+				
 				curFlowField.CreateFlowField();
 
 				st.Stop();

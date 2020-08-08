@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-using Sirenix.OdinInspector;
 
 namespace TMG.FlowField
 {
@@ -13,7 +10,6 @@ namespace TMG.FlowField
 		public GridController gridController;
 		public bool displayGrid;
 
-		[OnValueChanged("DrawFlowField")]
 		public FlowFieldDisplayType curDisplayType;
 
 		private Vector2Int gridSize;
@@ -36,7 +32,6 @@ namespace TMG.FlowField
 
 		public void DrawFlowField()
 		{
-			Debug.Log("drawin");
 			ClearCellDisplay();
 
 			switch (curDisplayType)

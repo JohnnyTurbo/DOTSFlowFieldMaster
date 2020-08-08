@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace TMG.FlowField
 {
@@ -12,8 +8,10 @@ namespace TMG.FlowField
 		public Cell[,] grid { get; private set; }
 		public Vector2Int gridSize { get; private set; }
 		public float cellRadius;
+		
 		public Cell destinationCell;
-		private float cellDiameter;	
+		
+		private float cellDiameter;
 
 		public FlowField(float _cellRadius, Vector2Int _gridSize)
 		{
@@ -37,7 +35,7 @@ namespace TMG.FlowField
 			}
 		}
 
-		public void ResetGrid()
+		public void Reset()
 		{
 			foreach(Cell curCell in grid)
 			{
@@ -72,18 +70,15 @@ namespace TMG.FlowField
 		public void CreateIntegrationField(Cell _destinationCell)
 		{
 			destinationCell = _destinationCell;
-			foreach(Cell curCell in grid)
-			{
-				curCell.bestCost = ushort.MaxValue;
-			}
-
+			
 			destinationCell.bestCost = 0;
 
 			Queue<Cell> cellsToCheck = new Queue<Cell>();
 
 			cellsToCheck.Enqueue(destinationCell);
 
-			while(cellsToCheck.Count > 0)
+			Debug.Log(cellsToCheck.Count);
+			while (cellsToCheck.Count > 0)
 			{
 				Cell curCell = cellsToCheck.Dequeue();
 				List<Cell> curNeighbors = GetNeighborCells(curCell.gridIndex, GridDirection.CardinalDirections);

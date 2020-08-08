@@ -4,22 +4,28 @@ namespace TMG.FlowField
 {
 	public class Cell
 	{
-		public bool isWalkable { get; private set; }
-		public bool isDestination { get; private set; }
 		public Vector3 worldPos;
 		public Vector2Int gridIndex;
-		public GridDirection bestDirection;
-		public byte cost;
-		public ushort bestCost;
 
+		public byte cost;
+		public bool isWalkable { get; private set; }
+
+		public bool isDestination { get; private set; }
+		public ushort bestCost;
+		
+		public GridDirection bestDirection;
+		
 		public Cell(bool _walkable, Vector3 _worldPos, Vector2Int _gridIndex)
 		{
-			isWalkable = _walkable;
-			isDestination = false;
 			worldPos = _worldPos;
 			gridIndex = _gridIndex;
+			
+			isWalkable = _walkable;
 			cost = 1;
+			
+			isDestination = false;
 			bestCost = ushort.MaxValue;
+			
 			bestDirection = GridDirection.None;
 		}
 
@@ -42,6 +48,7 @@ namespace TMG.FlowField
 			bestCost = 0;
 			isWalkable = true;
 			isDestination = true;
+			
 			bestDirection = GridDirection.None;
 		}
 
@@ -51,6 +58,8 @@ namespace TMG.FlowField
 			bestCost = ushort.MaxValue;
 			isWalkable = true;
 			isDestination = false;
+
+			bestDirection = GridDirection.None;
 		}
 	}
 }
