@@ -47,7 +47,7 @@ namespace TMG.FlowField {
 			float nodeRadius = gridController.cellRadius;
 			Vector2 maxSpawnPos = new Vector2(gridSize.x * nodeRadius * 2 + nodeRadius, gridSize.y * nodeRadius * 2 + nodeRadius);
 			int colMask = LayerMask.GetMask("Impassible", "Units");
-			Vector3 newPos = new Vector3();
+			Vector3 newPos;
 			for (int i = 0; i < numUnitsPerSpawn; i++)
 			{
 				GameObject newUnit = Instantiate(unitPrefab);
