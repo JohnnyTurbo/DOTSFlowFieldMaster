@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Physics;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace TMG.ECSFlowField
@@ -23,11 +24,22 @@ namespace TMG.ECSFlowField
 			
 			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldTag newFlowFieldTag, in FlowFieldData flowFieldData) =>
 			{
-				// TODO: Figure out why this isn't working with Burst
 				commandBuffer.RemoveComponent<NewFlowFieldTag>(entity);
-				
+
 				DynamicBuffer<GridCellBufferElement> buffer = commandBuffer.AddBuffer<GridCellBufferElement>(entity);
 				DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+
+				float newCellRadius = flowFieldData.cellRadius;
+				CollisionFilter newCostFieldFilter = new CollisionFilter();
+				newCostFieldFilter.CollidesWith = 1u << 1 | 1u << 2;
+
+				CellSharedData newCellSharedData = new CellSharedData
+				{
+					cellRadius = newCellRadius,
+					cellDiameter = newCellRadius * 2,
+					halfExtents = new float3(newCellRadius, newCellRadius, newCellRadius),
+					costFieldFilter = newCostFieldFilter
+				};
 
 				int2 gridSize = flowFieldData.gridSize;
 				float cellRadius = flowFieldData.cellRadius;
@@ -50,21 +62,12 @@ namespace TMG.ECSFlowField
 
 						Entity newCell = commandBuffer.CreateEntity(cellArchetype);
 						commandBuffer.SetComponent(newCell, newCellData);
+						// TODO Figure out a way to make this work with Burst
+						commandBuffer.SetSharedComponent(newCell, newCellSharedData);
 						cellBuffer.Add(newCellData);
 					}
 				}
-				//commandBuffer.AddComponent<GenerateCostFieldTag>(entity);
-
-			}).Run();
-			
-			EntityQuery newCells = GetEntityQuery(typeof(CellSharedData));
-			CellSharedData defaultCellSharedData = new CellSharedData
-			{
-				cellRadius = 0.5f,
-				cellDiameter = 1f,
-				halfExtents = new float3(0.5f, 0.5f, 0.5f)
-			};
-			EntityManager.SetSharedComponentData(newCells, defaultCellSharedData);
+			}).WithoutBurst().Run();
 		}
 	}
 }

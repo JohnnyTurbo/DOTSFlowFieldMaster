@@ -9,6 +9,6 @@ namespace TMG.ECSFlowField
 		public float cellRadius;
 		public float cellDiameter;
 		public float3 halfExtents;
-		CollisionFilter costFieldFilter;
+		public CollisionFilter costFieldFilter;
 	}
 }
