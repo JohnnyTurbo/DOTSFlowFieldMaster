@@ -14,7 +14,7 @@ namespace Tests
             testCell.IncreaseCost(1);
 
             testCell.cost.Should().Be(2);
-            testCell.isWalkable.Should().BeTrue();
+            //testCell.isWalkable.Should().BeTrue();
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace Tests
             testCell.IncreaseCost(255);
 
             testCell.cost.Should().Be(byte.MaxValue);
-            testCell.isWalkable.Should().BeFalse();
+            //testCell.isWalkable.Should().BeFalse();
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace Tests
             testCell.IncreaseCost(256);
 
             testCell.cost.Should().Be(byte.MaxValue);
-            testCell.isWalkable.Should().BeFalse();
+            //testCell.isWalkable.Should().BeFalse();
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Tests
             testCell.MakeImpassible();
 
             testCell.cost.Should().Be(byte.MaxValue);
-            testCell.isWalkable.Should().BeFalse();
+            //testCell.isWalkable.Should().BeFalse();
         }
     }
 }

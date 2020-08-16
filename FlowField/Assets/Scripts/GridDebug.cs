@@ -71,13 +71,13 @@ namespace TMG.FlowField
 			iconGO.transform.parent = transform;
 			iconGO.transform.position = cell.worldPos;
 
-			if (cell.isDestination)
+			if (cell.cost == 0)
 			{
 				iconSR.sprite = ffIcons[3];
 				Quaternion newRot = Quaternion.Euler(90, 0, 0);
 				iconGO.transform.rotation = newRot;
 			}
-			else if (!cell.isWalkable)
+			else if (cell.cost == byte.MaxValue)
 			{
 				iconSR.sprite = ffIcons[2];
 				Quaternion newRot = Quaternion.Euler(90, 0, 0);

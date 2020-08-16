@@ -7,8 +7,8 @@ namespace TMG.FlowField
 	{
 		public Cell[,] grid { get; private set; }
 		public Vector2Int gridSize { get; private set; }
-		public float cellRadius;
-		
+		public float cellRadius { get; private set; }
+
 		public Cell destinationCell;
 		
 		private float cellDiameter;
@@ -30,7 +30,7 @@ namespace TMG.FlowField
 				for(int y = 0; y < gridSize.y; y++)
 				{
 					Vector3 worldPos = new Vector3(cellDiameter * x + cellRadius, 0, cellDiameter * y + cellRadius);
-					grid[x, y] = new Cell(true, worldPos, new Vector2Int(x,y));
+					grid[x, y] = new Cell(worldPos, new Vector2Int(x,y));
 				}
 			}
 		}
