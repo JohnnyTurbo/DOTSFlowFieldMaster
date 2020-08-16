@@ -18,6 +18,11 @@ namespace TMG.ECSFlowField
 			buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
 		}
 
+		protected override void OnStartRunning()
+		{
+			collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
+		}
+
 		protected override void OnUpdate()
 		{
 			var commandBuffer = ecbSystem.CreateCommandBuffer();//.AsParallelWriter();
@@ -43,15 +48,14 @@ namespace TMG.ECSFlowField
 					Filter = cellSharedData.costFieldFilter
 				};
 
-				collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
-				NativeList<int> hitIndecies = new NativeList<int>();
+				NativeList<int> hitIndecies = new NativeList<int>(Allocator.TempJob);
 
 				bool haveHit = collisionWorld.OverlapAabb(input, ref hitIndecies);
 				if (haveHit)
 				{
-					UnityEngine.Debug.Log("Hitta");
+					UnityEngine.Debug.Log($"Hitta");
 				}
-
+				hitIndecies.Dispose();
 			}).WithoutBurst().Run();
 		}
 	}

@@ -19,6 +19,7 @@ namespace TMG.ECSFlowField
 			{
 				Entity flowFieldControllerEntity = flowFieldControllerQuery.GetSingletonEntity();
 				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(flowFieldControllerEntity);
+
 				FlowFieldData flowFieldData = new FlowFieldData
 				{
 					gridSize = flowFieldControllerData.gridSize,

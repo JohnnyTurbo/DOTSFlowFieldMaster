@@ -7,20 +7,33 @@ namespace TMG.ECSFlowField
 	public class InitializeFlowFieldSystem : SystemBase
 	{
 		EntityCommandBufferSystem ecbSystem;
+		EntityArchetype cellArchetype;
+		CollisionFilter sharedCollisionFilter;
 
 		protected override void OnCreate()
 		{
 			ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
 		}
 
+		protected override void OnStartRunning()
+		{
+			cellArchetype = EntityManager.CreateArchetype(
+															typeof(CellData),
+															typeof(CellSharedData),
+															typeof(GenerateCostFieldTag)
+															);
+			sharedCollisionFilter = new CollisionFilter()
+			{
+				BelongsTo = ~0u,
+				CollidesWith = (1u << 0) | (1u << 1),
+				GroupIndex = 0
+			};
+		}
+
 		protected override void OnUpdate()
 		{
 			var commandBuffer = ecbSystem.CreateCommandBuffer();
-			EntityArchetype cellArchetype = EntityManager.CreateArchetype(
-																			typeof(CellData),
-																			typeof(CellSharedData),
-																			typeof(GenerateCostFieldTag)
-																			);
+			
 			
 			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldTag newFlowFieldTag, in FlowFieldData flowFieldData) =>
 			{
@@ -30,15 +43,13 @@ namespace TMG.ECSFlowField
 				DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
 
 				float newCellRadius = flowFieldData.cellRadius;
-				CollisionFilter newCostFieldFilter = new CollisionFilter();
-				newCostFieldFilter.CollidesWith = 1u << 1 | 1u << 2;
 
 				CellSharedData newCellSharedData = new CellSharedData
 				{
 					cellRadius = newCellRadius,
 					cellDiameter = newCellRadius * 2,
 					halfExtents = new float3(newCellRadius, newCellRadius, newCellRadius),
-					costFieldFilter = newCostFieldFilter
+					costFieldFilter = sharedCollisionFilter
 				};
 
 				int2 gridSize = flowFieldData.gridSize;

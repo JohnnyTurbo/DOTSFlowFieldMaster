@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Physics;
 
 namespace TMG.ECSFlowField
 {
@@ -8,5 +9,6 @@ namespace TMG.ECSFlowField
     {
         public int2 gridSize;
         public float cellRadius;
+        public CollisionFilter colFilt;
     }
 }
