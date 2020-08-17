@@ -10,5 +10,6 @@ namespace TMG.ECSFlowField
 		public byte cost;
 		public ushort bestCost;
 		public int2 bestDirection;
+		public BlobAssetReference<CellSharedData> cellBlobData;
 	}
 }

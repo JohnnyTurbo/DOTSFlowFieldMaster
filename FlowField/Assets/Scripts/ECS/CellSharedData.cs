@@ -4,11 +4,18 @@ using Unity.Physics;
 
 namespace TMG.ECSFlowField
 {
-	public struct CellSharedData : ISharedComponentData
+	public struct CellSharedData : IComponentData
 	{
 		public float cellRadius;
 		public float cellDiameter;
 		public float3 halfExtents;
 		public CollisionFilter costFieldFilter;
 	}
+
+	/*
+	public struct CellBlobData
+	{
+		public BlobArray<CellSharedData> cellSharedData;
+	}
+	*/
 }

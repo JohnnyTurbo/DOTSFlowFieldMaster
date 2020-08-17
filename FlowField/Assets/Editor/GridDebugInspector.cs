@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using TMG.FlowField;
+//using TMG.ECSFlowField;
 
 [CustomEditor(typeof(GridDebug))]
 public class GridDebugInspector : Editor

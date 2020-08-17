@@ -2,7 +2,7 @@
 
 namespace TMG.ECSFlowField
 {
-	[InternalBufferCapacity(450)]
+	[InternalBufferCapacity(250)]
 	public struct GridCellBufferElement : IBufferElementData
 	{
 		public CellData cell;
