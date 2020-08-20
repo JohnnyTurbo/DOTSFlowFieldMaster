@@ -3,33 +3,27 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
-using UnityEngine.Rendering;
 
 namespace TMG.ECSFlowField
 {
 	public class GenerateCostFieldSystem : SystemBase
 	{
-		EntityCommandBufferSystem ecbSystem;
-		BuildPhysicsWorld buildPhysicsWorld;
+		private EntityCommandBufferSystem _ecbSystem;
+		private BuildPhysicsWorld _buildPhysicsWorld;
 		//CollisionWorld collisionWorld;
-		static readonly byte impassibleTag = 1 << 0;
-		static readonly byte roughTerrainTag = 1 << 1;
+		private const byte _impassibleTag = 1 << 0;
+		private const byte _roughTerrainTag = 1 << 1;
 
 		protected override void OnCreate()
 		{
-			ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
-			buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
-		}
-
-		protected override void OnStartRunning()
-		{
-			//collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
+			_ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
+			_buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
 		}
 
 		protected override void OnUpdate()
 		{
-			var commandBuffer = ecbSystem.CreateCommandBuffer();//.AsParallelWriter();
-			var collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
+			var commandBuffer = _ecbSystem.CreateCommandBuffer();//.AsParallelWriter();
+			var collisionWorld = _buildPhysicsWorld.PhysicsWorld.CollisionWorld;
 
 			Entities.ForEach((Entity entity, int entityInQueryIndex, ref CellData cellData, in GenerateCostFieldTag costFieldTag) =>
 			{
@@ -53,7 +47,7 @@ namespace TMG.ECSFlowField
 					Filter = cellSharedData.costFieldFilter
 				};
 
-				UnityEngine.Debug.Log($"impasstag {impassibleTag}, roughTag{roughTerrainTag}");
+				UnityEngine.Debug.Log($"impasstag {_impassibleTag}, roughTag{_roughTerrainTag}");
 
 				NativeList<int> hitIndecies = new NativeList<int>(Allocator.TempJob);
 
@@ -67,13 +61,13 @@ namespace TMG.ECSFlowField
 					{
 						RigidBody rb = collisionWorld.Bodies[i];
 						UnityEngine.Debug.Log($"Collided w/{rb.Entity.Index}");
-						if (rb.CustomTags == impassibleTag)
+						if (rb.CustomTags == _impassibleTag)
 						{
 							UnityEngine.Debug.Log("IMPASSIBLE");
 							//cellData.cost = byte.MaxValue;
 							IncreaseCellCost(ref cellData, byte.MaxValue);
 						}
-						else if (!hasIncreasedCost && rb.CustomTags.Equals(roughTerrainTag))
+						else if (!hasIncreasedCost && rb.CustomTags.Equals(_roughTerrainTag))
 						{
 							// Code smell: check for out of range
 							// TODO: flexible values to increase cost
