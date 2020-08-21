@@ -7,21 +7,18 @@ namespace TMG.ECSFlowField
 {
 	public class InitializeFlowFieldSystem : SystemBase
 	{
-		EntityCommandBufferSystem ecbSystem;
-		static EntityArchetype cellArchetype;
+		private EntityCommandBufferSystem _ecbSystem;
+		private static EntityArchetype _cellArchetype;
 
 		protected override void OnCreate()
 		{
-			ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
-			cellArchetype = EntityManager.CreateArchetype(
-															typeof(CellData),
-															typeof(GenerateCostFieldTag)
-															);
+			_ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
+			_cellArchetype = EntityManager.CreateArchetype(typeof(CellData), typeof(GenerateCostFieldTag));
 		}
 
 		protected override void OnUpdate()
 		{
-			var commandBuffer = ecbSystem.CreateCommandBuffer();
+			var commandBuffer = _ecbSystem.CreateCommandBuffer();
 
 			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldTag newFlowFieldTag, in FlowFieldData flowFieldData) =>
 			{
@@ -73,12 +70,14 @@ namespace TMG.ECSFlowField
 							cellBlobData = csd
 						};
 
-						Entity newCell = commandBuffer.CreateEntity(cellArchetype);
+						Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
 						commandBuffer.SetComponent(newCell, newCellData);
 						cellBuffer.Add(newCellData);
+						commandBuffer.AddComponent<GeneratePerlinNoiseTag>(entity);
 					}
 				}
-				commandBuffer.AddComponent<GenerateCostFieldTag>(entity);
+				//commandBuffer.AddComponent<GenerateCostFieldTag>(entity);
+				//commandBuffer.AddComponent<GeneratePerlinNoiseTag>(entity);
 			}).Run();
 		}
 	}

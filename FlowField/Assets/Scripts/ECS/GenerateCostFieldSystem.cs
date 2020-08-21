@@ -6,6 +6,7 @@ using Unity.Physics.Systems;
 
 namespace TMG.ECSFlowField
 {
+	[DisableAutoCreation]
 	public class GenerateCostFieldSystem : SystemBase
 	{
 		private EntityCommandBufferSystem _ecbSystem;
@@ -55,11 +56,12 @@ namespace TMG.ECSFlowField
 				if (haveHit)
 				{
 					//UnityEngine.Debug.Log($"Cell Pos: {cellData.gridIndex.ToString()} hit {hitIndecies.Length} things");
-					//foreach(int curIndex in hitIndecies)
+					
 					bool hasIncreasedCost = false;
-					for (int i = 0; i < hitIndecies.Length; i++)
+					//for (int i = 0; i < hitIndecies.Length; i++)
+					foreach(int curIndex in hitIndecies)
 					{
-						RigidBody rb = collisionWorld.Bodies[i];
+						RigidBody rb = collisionWorld.Bodies[curIndex];
 						UnityEngine.Debug.Log($"Collided w/{rb.Entity.Index}");
 						if (rb.CustomTags == _impassibleTag)
 						{

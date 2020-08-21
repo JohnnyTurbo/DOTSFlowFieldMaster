@@ -767,6 +767,7 @@ MonoBehaviour:
     x: 40
     y: 22
   cellRadius: 0.5
+  noiseScale: 10
 --- !u!4 &145894806
 Transform:
   m_ObjectHideFlags: 0
@@ -837,7 +838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 946b48769eacf43428aef620081f78e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curDisplayType: 0
+  curDisplayType: 5
   displayGrid: 1
 --- !u!1 &456687900
 GameObject:

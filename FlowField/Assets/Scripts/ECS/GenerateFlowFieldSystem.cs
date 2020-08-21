@@ -5,30 +5,46 @@ namespace TMG.ECSFlowField
 {
 	public class GenerateFlowFieldSystem : SystemBase
 	{
-		Entity flowField;
-		EntityQuery flowFieldControllerQuery;
+		private Entity _flowField;
+		private EntityQuery _flowFieldControllerQuery;
+		private Entity _flowFieldControllerEntity;
 
 		protected override void OnCreate()
 		{
-			flowFieldControllerQuery = GetEntityQuery(typeof(FlowFieldControllerData));
+			_flowFieldControllerQuery = GetEntityQuery(typeof(FlowFieldControllerData));
+			
+		}
+
+		protected override void OnStartRunning()
+		{
+			
 		}
 
 		protected override void OnUpdate()
 		{
-			if (Input.GetMouseButtonDown(0))
+			if (Input.GetKeyDown(KeyCode.Alpha1))
 			{
-				Entity flowFieldControllerEntity = flowFieldControllerQuery.GetSingletonEntity();
-				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(flowFieldControllerEntity);
+				_flowFieldControllerEntity = _flowFieldControllerQuery.GetSingletonEntity();
+				_flowField = EntityManager.CreateEntity();
+				EntityManager.AddComponent<GeneratePerlinNoiseTag>(_flowField);
+				EntityManager.AddComponent<FlowFieldData>(_flowField);
+				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(_flowFieldControllerEntity);
 				GridDebug.instance.flowFieldControllerData = flowFieldControllerData;
 				FlowFieldData flowFieldData = new FlowFieldData
 				{
 					gridSize = flowFieldControllerData.gridSize,
-					cellRadius = flowFieldControllerData.cellRadius
+					cellRadius = flowFieldControllerData.cellRadius,
+					noiseScale = flowFieldControllerData.noiseScale
 				};
-				flowField = EntityManager.CreateEntity();
-				EntityManager.AddComponent<FlowFieldData>(flowField);
-				EntityManager.AddComponent<NewFlowFieldTag>(flowField);
-				EntityManager.SetComponentData(flowField, flowFieldData);
+				
+				EntityManager.SetComponentData(_flowField, flowFieldData);
+				
+				
+			}
+			if (Input.GetMouseButtonDown(0))
+			{
+				
+				EntityManager.AddComponent<NewFlowFieldTag>(_flowField);
 			}
 		}
 	}

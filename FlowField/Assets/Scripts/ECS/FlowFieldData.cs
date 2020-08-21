@@ -7,5 +7,6 @@ namespace TMG.ECSFlowField
 	{ 
 		public int2 gridSize;
 		public float cellRadius;
+		public float noiseScale;
 	}
 }

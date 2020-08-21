@@ -1,4 +1,5 @@
-﻿using Sirenix.Utilities;
+﻿using System;
+using Sirenix.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEditor;
 
 namespace TMG.ECSFlowField
 {
-	public enum FlowFieldDisplayType { None, AllIcons, DestinationIcon, CostField, IntegrationField };
+	public enum FlowFieldDisplayType { None, AllIcons, DestinationIcon, CostField, IntegrationField, CostHeatMap };
 
 	public class GridDebug : MonoBehaviour
 	{
@@ -34,20 +35,12 @@ namespace TMG.ECSFlowField
 				gridSize = new Vector2Int { x = flowFieldControllerData.gridSize.x, y = flowFieldControllerData.gridSize.y };
 				cellRadius = flowFieldControllerData.cellRadius;
 
-				if (gridCellData.IsNullOrEmpty())
-				{
-					DrawGrid(gridSize, Color.yellow, cellRadius);
-				}
-				else
-				{
-					DrawGrid(gridSize, Color.green, cellRadius);
-				}
+				DrawGrid(gridSize, gridCellData.IsNullOrEmpty() ? Color.yellow : Color.green, cellRadius);
 			}
 
 			if (gridCellData.IsNullOrEmpty()) { return; }
 
-			GUIStyle style = new GUIStyle(GUI.skin.label);
-			style.alignment = TextAnchor.MiddleCenter;
+			GUIStyle style = new GUIStyle(GUI.skin.label) {alignment = TextAnchor.MiddleCenter};
 
 			switch (curDisplayType)
 			{
@@ -66,7 +59,18 @@ namespace TMG.ECSFlowField
 						Handles.Label(curCell.worldPos, curCell.bestCost.ToString(), style);
 					}
 					break;
-
+				
+				case FlowFieldDisplayType.CostHeatMap:
+					foreach (CellData curCell in gridCellData)
+					{
+						float costHeat = curCell.cost / 255f;
+						Gizmos.color = new Color(costHeat, costHeat, costHeat);
+						Vector3 center = new Vector3(cellRadius * 2 * curCell.gridIndex.x + cellRadius, 0, cellRadius * 2 * curCell.gridIndex.y + cellRadius);
+						Vector3 size = Vector3.one * cellRadius * 2;
+						Gizmos.DrawCube(center, size);
+					}
+					break;
+				
 				default:
 					break;
 			}
