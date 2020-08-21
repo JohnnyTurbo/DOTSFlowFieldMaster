@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace TMG.ECSFlowField
 {
+    [DisableAutoCreation]
     public class GenerateCostFieldFromPerlinNoiseSystem : SystemBase
     {
         private EntityQuery _perlinNoiseDataQuery;

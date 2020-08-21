@@ -13,7 +13,7 @@ namespace TMG.ECSFlowField
 		protected override void OnCreate()
 		{
 			_ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
-			_cellArchetype = EntityManager.CreateArchetype(typeof(CellData), typeof(GenerateCostFieldTag));
+			_cellArchetype = EntityManager.CreateArchetype(typeof(CellData));
 		}
 
 		protected override void OnUpdate()
@@ -60,11 +60,12 @@ namespace TMG.ECSFlowField
 					{
 						//UnityEngine.Debug.Log($"{x}, {y}");
 						float3 worldPos = new float3(newCellDiameter * x + newCellRadius, 0, newCellDiameter * y + newCellRadius);
+						byte newCost = ECSCostFieldHelper.instance.EvaluateCost(worldPos, newCellRadius);
 						CellData newCellData = new CellData
 						{
 							worldPos = worldPos,
 							gridIndex = new int2(x, y),
-							cost = 1,
+							cost = newCost,
 							bestCost = ushort.MaxValue,
 							bestDirection = int2.zero,
 							cellBlobData = csd
@@ -73,11 +74,11 @@ namespace TMG.ECSFlowField
 						Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
 						commandBuffer.SetComponent(newCell, newCellData);
 						cellBuffer.Add(newCellData);
-						commandBuffer.AddComponent<GeneratePerlinNoiseTag>(entity);
+						
+						commandBuffer.AddComponent<AddToDebugTag>(newCell);
 					}
 				}
-				//commandBuffer.AddComponent<GenerateCostFieldTag>(entity);
-				//commandBuffer.AddComponent<GeneratePerlinNoiseTag>(entity);
+				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
 			}).Run();
 		}
 	}

@@ -22,12 +22,12 @@ namespace TMG.ECSFlowField
 
 		protected override void OnUpdate()
 		{
-			if (Input.GetKeyDown(KeyCode.Alpha1))
+			if (Input.GetMouseButtonDown(0))
 			{
 				_flowFieldControllerEntity = _flowFieldControllerQuery.GetSingletonEntity();
 				_flowField = EntityManager.CreateEntity();
-				EntityManager.AddComponent<GeneratePerlinNoiseTag>(_flowField);
-				EntityManager.AddComponent<FlowFieldData>(_flowField);
+				//EntityManager.AddComponent<GeneratePerlinNoiseTag>(_flowField);
+				
 				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(_flowFieldControllerEntity);
 				GridDebug.instance.flowFieldControllerData = flowFieldControllerData;
 				FlowFieldData flowFieldData = new FlowFieldData
@@ -36,14 +36,8 @@ namespace TMG.ECSFlowField
 					cellRadius = flowFieldControllerData.cellRadius,
 					noiseScale = flowFieldControllerData.noiseScale
 				};
-				
+				EntityManager.AddComponent<FlowFieldData>(_flowField);
 				EntityManager.SetComponentData(_flowField, flowFieldData);
-				
-				
-			}
-			if (Input.GetMouseButtonDown(0))
-			{
-				
 				EntityManager.AddComponent<NewFlowFieldTag>(_flowField);
 			}
 		}

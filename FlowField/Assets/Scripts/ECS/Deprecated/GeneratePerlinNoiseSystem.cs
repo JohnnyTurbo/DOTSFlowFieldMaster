@@ -5,6 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace TMG.ECSFlowField
 {
+    [DisableAutoCreation]
     public class GeneratePerlinNoiseSystem : SystemBase
     {
         //private Texture2D _perlinTexture;

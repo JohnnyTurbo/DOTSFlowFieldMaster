@@ -50,16 +50,16 @@ namespace TMG.ECSFlowField
 
 				UnityEngine.Debug.Log($"impasstag {_impassibleTag}, roughTag{_roughTerrainTag}");
 
-				NativeList<int> hitIndecies = new NativeList<int>(Allocator.TempJob);
+				NativeList<int> hitIndices = new NativeList<int>(Allocator.TempJob);
 
-				bool haveHit = collisionWorld.OverlapAabb(input, ref hitIndecies);
+				bool haveHit = collisionWorld.OverlapAabb(input, ref hitIndices);
 				if (haveHit)
 				{
 					//UnityEngine.Debug.Log($"Cell Pos: {cellData.gridIndex.ToString()} hit {hitIndecies.Length} things");
 					
 					bool hasIncreasedCost = false;
 					//for (int i = 0; i < hitIndecies.Length; i++)
-					foreach(int curIndex in hitIndecies)
+					foreach(int curIndex in hitIndices)
 					{
 						RigidBody rb = collisionWorld.Bodies[curIndex];
 						UnityEngine.Debug.Log($"Collided w/{rb.Entity.Index}");
@@ -80,7 +80,7 @@ namespace TMG.ECSFlowField
 					}
 				}
 				//UnityEngine.Debug.Log($"Cost: {cellData.cost}");
-				hitIndecies.Dispose();
+				hitIndices.Dispose();
 				commandBuffer.AddComponent<AddToDebugTag>(entity);
 			}).Run();
 
