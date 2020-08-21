@@ -19,8 +19,8 @@ namespace TMG.ECSFlowField
 		public List<CellData> gridCellData;
 		public FlowFieldControllerData flowFieldControllerData;
 
-		Vector2Int gridSize;
-		float cellRadius;
+		private Vector2Int _gridSize;
+		private float _cellRadius;
 
 		private void Awake()
 		{
@@ -32,10 +32,10 @@ namespace TMG.ECSFlowField
 		{
 			if (displayGrid)
 			{
-				gridSize = new Vector2Int { x = flowFieldControllerData.gridSize.x, y = flowFieldControllerData.gridSize.y };
-				cellRadius = flowFieldControllerData.cellRadius;
+				_gridSize = new Vector2Int { x = flowFieldControllerData.gridSize.x, y = flowFieldControllerData.gridSize.y };
+				_cellRadius = flowFieldControllerData.cellRadius;
 
-				DrawGrid(gridSize, gridCellData.IsNullOrEmpty() ? Color.yellow : Color.green, cellRadius);
+				DrawGrid(_gridSize, gridCellData.IsNullOrEmpty() ? Color.yellow : Color.green, _cellRadius);
 			}
 
 			if (gridCellData.IsNullOrEmpty()) { return; }
@@ -65,8 +65,8 @@ namespace TMG.ECSFlowField
 					{
 						float costHeat = curCell.cost / 255f;
 						Gizmos.color = new Color(costHeat, costHeat, costHeat);
-						Vector3 center = new Vector3(cellRadius * 2 * curCell.gridIndex.x + cellRadius, 0, cellRadius * 2 * curCell.gridIndex.y + cellRadius);
-						Vector3 size = Vector3.one * cellRadius * 2;
+						Vector3 center = new Vector3(_cellRadius * 2 * curCell.gridIndex.x + _cellRadius, 0, _cellRadius * 2 * curCell.gridIndex.y + _cellRadius);
+						Vector3 size = Vector3.one * _cellRadius * 2;
 						Gizmos.DrawCube(center, size);
 					}
 					break;

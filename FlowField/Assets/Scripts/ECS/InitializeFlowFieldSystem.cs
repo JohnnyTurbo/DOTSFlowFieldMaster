@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using UnityEngine;
 
 namespace TMG.ECSFlowField
 {
@@ -79,6 +80,23 @@ namespace TMG.ECSFlowField
 					}
 				}
 				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
+
+				float3 mousePos = flowFieldData.clickedPos;
+				
+				float percentX = mousePos.x / (gridSize.x * newCellDiameter);
+				float percentY = mousePos.z / (gridSize.y * newCellDiameter);
+			
+				percentX = Mathf.Clamp01(percentX);
+				percentY = Mathf.Clamp01(percentY);
+
+				int xDest = Mathf.Clamp(Mathf.FloorToInt((gridSize.x) * percentX), 0, gridSize.x - 1);
+				int yDest = Mathf.Clamp(Mathf.FloorToInt((gridSize.y) * percentY), 0, gridSize.y - 1);
+				
+				int2 destinationIndex = new int2(xDest,yDest);
+				DestinationCellData newDestinationCellData = new DestinationCellData{ destinationIndex = destinationIndex};
+				commandBuffer.AddComponent<DestinationCellData>(entity);
+				commandBuffer.SetComponent(entity, newDestinationCellData);
+				
 			}).Run();
 		}
 	}
