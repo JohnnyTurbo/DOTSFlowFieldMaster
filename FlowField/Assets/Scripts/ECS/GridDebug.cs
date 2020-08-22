@@ -89,5 +89,11 @@ namespace TMG.ECSFlowField
 				}
 			}
 		}
+
+		public void ClearList()
+		{
+			Debug.Log("Clearing List");
+			gridCellData.Clear();
+		}
 	}
 }

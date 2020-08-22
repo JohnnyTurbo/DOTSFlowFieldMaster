@@ -25,8 +25,11 @@ namespace TMG.ECSFlowField
 			{
 				commandBuffer.RemoveComponent<NewFlowFieldTag>(entity);
 
-				DynamicBuffer<GridCellBufferElement> buffer = commandBuffer.AddBuffer<GridCellBufferElement>(entity);
-				DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+				//DynamicBuffer<GridCellBufferElement> buffer = commandBuffer.AddBuffer<GridCellBufferElement>(entity);
+				//DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+				
+				DynamicBuffer<EntityBufferElement> buffer = commandBuffer.AddBuffer<EntityBufferElement>(entity);
+				DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
 
 				CollisionFilter sharedCollisionFilter = new CollisionFilter()
 				{
@@ -74,9 +77,8 @@ namespace TMG.ECSFlowField
 
 						Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
 						commandBuffer.SetComponent(newCell, newCellData);
-						cellBuffer.Add(newCellData);
-						
 						commandBuffer.AddComponent<AddToDebugTag>(newCell);
+						entityBuffer.Add(newCell);
 					}
 				}
 				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
