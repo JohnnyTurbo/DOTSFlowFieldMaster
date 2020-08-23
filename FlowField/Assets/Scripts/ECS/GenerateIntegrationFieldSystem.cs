@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -34,7 +33,7 @@ namespace TMG.ECSFlowField
 					cellDatas[i] = GetComponent<CellData>(entityBuffer[i]);
 				}
 
-				int destIndex = ToFlatIndex(destinationCellData.destinationIndex, gridSize.y);
+				int destIndex = ECSHelper.ToFlatIndex(destinationCellData.destinationIndex, gridSize.y);
 				CellData destinationCell = cellDatas[destIndex];
 				destinationCell.cost = 0;
 				destinationCell.bestCost = 0;
@@ -47,13 +46,13 @@ namespace TMG.ECSFlowField
 				while (cellsToCheck.Count > 0)
 				{
 					int2 curCellIndex = cellsToCheck.Dequeue();
-					int curFlatIndex = ToFlatIndex(curCellIndex, gridSize.y);
+					int curFlatIndex = ECSHelper.ToFlatIndex(curCellIndex, gridSize.y);
 					CellData curCellData = cellDatas[curFlatIndex];
 					neighborIndices.Clear();
-					GetNeighborIndices(curCellIndex, GridDirection.CardinalDirections, gridSize, ref neighborIndices);
+					ECSHelper.GetNeighborIndices(curCellIndex, GridDirection.CardinalDirections, gridSize, ref neighborIndices);
 					foreach (int2 neighborIndex in neighborIndices)
 					{
-						int flatNeighborIndex = ToFlatIndex(neighborIndex, gridSize.y);
+						int flatNeighborIndex = ECSHelper.ToFlatIndex(neighborIndex, gridSize.y);
 						CellData neighborCellData = cellDatas[flatNeighborIndex];
 						if (neighborCellData.cost == byte.MaxValue)
 						{
@@ -69,6 +68,27 @@ namespace TMG.ECSFlowField
 					}
 				}
 
+				for (int i = 0; i < cellDatas.Length; i++)
+				{
+					CellData curCullData = cellDatas[i];
+					neighborIndices.Clear();
+					ECSHelper.GetNeighborIndices(curCullData.gridIndex, GridDirection.AllDirections, gridSize, ref neighborIndices);
+					ushort bestCost = curCullData.bestCost;
+					int2 bestDirection = int2.zero;
+					foreach (int2 neighborIndex in neighborIndices)
+					{
+						int flatNeighborIndex = ECSHelper.ToFlatIndex(neighborIndex, gridSize.y);
+						CellData neighborCellData = cellDatas[flatNeighborIndex];
+						if (neighborCellData.bestCost < bestCost)
+						{
+							bestCost = neighborCellData.bestCost;
+							bestDirection = neighborCellData.gridIndex - curCullData.gridIndex;
+						}
+					}
+					curCullData.bestDirection = bestDirection;
+					cellDatas[i] = curCullData;
+				}
+
 				GridDebug.instance.ClearList();
 
 				for (int i = 0; i < entityBuffer.Length; i++)
@@ -81,38 +101,6 @@ namespace TMG.ECSFlowField
 				cellDatas.Dispose();
 				cellsToCheck.Dispose();
 			}).Run();
-		}
-
-		private static void GetNeighborIndices(int2 originIndex, List<GridDirection> directions, int2 gridSize, ref NativeList<int2> results)
-		{
-			foreach (int2 curDirection in directions)
-			{
-				int2 neighborIndex = GetIndexAtRelativePosition(originIndex, curDirection, gridSize);
-				
-				if (neighborIndex.x >= 0)
-				{
-					results.Add(neighborIndex);
-				}
-			}
-		}
-
-		private static int2 GetIndexAtRelativePosition(int2 originPos, int2 relativePos, int2 gridSize)
-		{
-			
-			int2 finalPos = originPos + relativePos;
-			if (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y)
-			{
-				return new int2(-1, -1);
-			}
-			else
-			{
-				return finalPos;
-			}
-		}
-		
-		private static int ToFlatIndex(int2 index2D, int height)
-		{
-			return height * index2D.x + index2D.y;
 		}
 	}
 }

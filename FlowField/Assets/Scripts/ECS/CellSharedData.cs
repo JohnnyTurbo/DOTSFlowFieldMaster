@@ -11,11 +11,4 @@ namespace TMG.ECSFlowField
 		public float3 halfExtents;
 		public CollisionFilter costFieldFilter;
 	}
-
-	/*
-	public struct CellBlobData
-	{
-		public BlobArray<CellSharedData> cellSharedData;
-	}
-	*/
 }

@@ -25,9 +25,6 @@ namespace TMG.ECSFlowField
 			{
 				commandBuffer.RemoveComponent<NewFlowFieldTag>(entity);
 
-				//DynamicBuffer<GridCellBufferElement> buffer = commandBuffer.AddBuffer<GridCellBufferElement>(entity);
-				//DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
-				
 				DynamicBuffer<EntityBufferElement> buffer = commandBuffer.AddBuffer<EntityBufferElement>(entity);
 				DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
 
@@ -62,7 +59,6 @@ namespace TMG.ECSFlowField
 				{
 					for (int y = 0; y < gridSize.y; y++)
 					{
-						//UnityEngine.Debug.Log($"{x}, {y}");
 						float3 worldPos = new float3(newCellDiameter * x + newCellRadius, 0, newCellDiameter * y + newCellRadius);
 						byte newCost = ECSCostFieldHelper.instance.EvaluateCost(worldPos, newCellRadius);
 						CellData newCellData = new CellData
@@ -83,18 +79,8 @@ namespace TMG.ECSFlowField
 				}
 				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
 
-				float3 mousePos = flowFieldData.clickedPos;
+				int2 destinationIndex = ECSHelper.GetCellIndexFromWorldPos(flowFieldData.clickedPos, gridSize, newCellDiameter);
 				
-				float percentX = mousePos.x / (gridSize.x * newCellDiameter);
-				float percentY = mousePos.z / (gridSize.y * newCellDiameter);
-			
-				percentX = Mathf.Clamp01(percentX);
-				percentY = Mathf.Clamp01(percentY);
-
-				int xDest = Mathf.Clamp(Mathf.FloorToInt((gridSize.x) * percentX), 0, gridSize.x - 1);
-				int yDest = Mathf.Clamp(Mathf.FloorToInt((gridSize.y) * percentY), 0, gridSize.y - 1);
-				
-				int2 destinationIndex = new int2(xDest,yDest);
 				DestinationCellData newDestinationCellData = new DestinationCellData{ destinationIndex = destinationIndex};
 				commandBuffer.AddComponent<DestinationCellData>(entity);
 				commandBuffer.SetComponent(entity, newDestinationCellData);

@@ -70,7 +70,12 @@ namespace TMG.ECSFlowField
 						Gizmos.DrawCube(center, size);
 					}
 					break;
-				
+				case FlowFieldDisplayType.AllIcons:
+					foreach (CellData curCell in gridCellData)
+					{
+						Handles.Label(curCell.worldPos, curCell.bestDirection.ToString(), style);
+					}
+					break;
 				default:
 					break;
 			}
