@@ -19,7 +19,7 @@ namespace TMG.ECSFlowField
             }
         }
 
-        public static int2 GetIndexAtRelativePosition(int2 originPos, int2 relativePos, int2 gridSize)
+        private static int2 GetIndexAtRelativePosition(int2 originPos, int2 relativePos, int2 gridSize)
         {
 			
             int2 finalPos = originPos + relativePos;

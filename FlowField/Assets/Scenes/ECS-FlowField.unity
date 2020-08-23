@@ -482,7 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 946b48769eacf43428aef620081f78e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curDisplayType: 4
+  curDisplayType: 0
   displayGrid: 1
 --- !u!1 &456687900
 GameObject:
@@ -808,6 +808,7 @@ GameObject:
   m_Component:
   - component: {fileID: 945998682}
   - component: {fileID: 945998681}
+  - component: {fileID: 945998683}
   m_Layer: 0
   m_Name: MonoHelper
   m_TagString: Untagged
@@ -841,6 +842,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &945998683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945998680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e975578f87f4ef294913d87c71ded28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitPrefab: {fileID: 6552410613355783834, guid: 8a2b5189171a8024883db9aa5b577b76, type: 3}
+  numUnitsPerSpawn: 10
+  _maxSpawnPos: {x: 20, y: 20}
+  moveSpeed: 3
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
