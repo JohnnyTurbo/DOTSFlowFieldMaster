@@ -52,16 +52,17 @@ namespace TMG.ECSFlowField
             //NativeArray<CellData> cellDatas = new NativeArray<CellData>(_cellDatas.Length, Allocator.TempJob);
             //cellDatas = _cellDatas;
             JobHandle jobHandle = new JobHandle();
-            jobHandle = Entities.ForEach((ref PhysicsVelocity physVelocity, in Translation translation,
+            /*jobHandle = */Entities.ForEach((ref PhysicsVelocity physVelocity, in Translation translation,
                 in EntityMovementTag movementTag) =>
             {
                 int2 curCellIndex = ECSHelper.GetCellIndexFromWorldPos(translation.Value, flowFieldData.gridSize,
                     flowFieldData.cellRadius * 2);
+                
                 int flatCurCellIndex = ECSHelper.ToFlatIndex(curCellIndex, flowFieldData.gridSize.y);
                 int2 moveDirection = _cellDatas[flatCurCellIndex].bestDirection;
                 physVelocity.Linear.xz = moveDirection;
-            }).ScheduleParallel(jobHandle);
-            jobHandle.Complete();
+            }).WithoutBurst().Run();//ScheduleParallel(jobHandle);
+            //jobHandle.Complete();
             //cellDatas.Dispose();
         }
     }

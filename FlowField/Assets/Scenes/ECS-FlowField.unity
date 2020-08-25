@@ -854,9 +854,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e975578f87f4ef294913d87c71ded28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitPrefab: {fileID: 6552410613355783834, guid: 8a2b5189171a8024883db9aa5b577b76, type: 3}
-  numUnitsPerSpawn: 10
-  _maxSpawnPos: {x: 20, y: 20}
+  unitPrefab: {fileID: 8270838439448413405, guid: 4ba1ed4f7102a6f47b053c83e503b9c8, type: 3}
+  numUnitsPerSpawn: 1
+  _maxSpawnPos:
+    x: 20
+    y: 20
   moveSpeed: 3
 --- !u!1 &963194225
 GameObject:

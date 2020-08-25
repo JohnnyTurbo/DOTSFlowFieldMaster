@@ -12,7 +12,7 @@ namespace TMG.ECSFlowField
     {
         [SerializeField] private GameObject unitPrefab;
         [SerializeField] private int numUnitsPerSpawn;
-        [SerializeField] private Vector2Int _maxSpawnPos;
+        [SerializeField] private float2 _maxSpawnPos;
         [SerializeField] private float moveSpeed;
         
         private Entity _entityPrefab;
@@ -41,7 +41,7 @@ namespace TMG.ECSFlowField
                     float3 newPosition;
                     do
                     {
-                        newPosition = new float3(Random.Range(0, _maxSpawnPos.x), 0, Random.Range(0, _maxSpawnPos.y));
+                        newPosition = new float3(Random.Range(0f, _maxSpawnPos.x), 0, Random.Range(0, _maxSpawnPos.y));
                         _entityManager.SetComponentData(newUnit, new Translation {Value = newPosition});
                     } while (Physics.OverlapSphere(newPosition, 0.25f, colMask).Length > 0);
                 }

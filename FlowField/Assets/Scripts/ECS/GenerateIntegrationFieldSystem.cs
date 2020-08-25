@@ -100,7 +100,7 @@ namespace TMG.ECSFlowField
 				neighborIndices.Dispose();
 				cellDatas.Dispose();
 				cellsToCheck.Dispose();
-				EntityMovementSystem.instance.SetSingleton();
+				commandBuffer.AddComponent<CompleteFlowFieldTag>(entity);
 			}).Run();
 		}
 	}
