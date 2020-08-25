@@ -15,6 +15,7 @@ namespace TMG.ECSFlowField
         private EntityQuery _flowFieldQuery;
         private Entity _flowFieldEntity;
         private FlowFieldData _flowFieldData;
+        private DestinationCellData _destinationCellData;
         private DynamicBuffer<EntityBufferElement> _entityBuffer;
         private DynamicBuffer<Entity> _gridEntities;
         private static NativeArray<CellData> _cellDatas;
@@ -29,6 +30,7 @@ namespace TMG.ECSFlowField
             _flowFieldQuery = GetEntityQuery(typeof(FlowFieldData));
             _flowFieldEntity = _flowFieldQuery.GetSingletonEntity();
             _flowFieldData = EntityManager.GetComponentData<FlowFieldData>(_flowFieldEntity);
+            _destinationCellData = EntityManager.GetComponentData<DestinationCellData>(_flowFieldEntity);
             _entityBuffer = EntityManager.GetBuffer<EntityBufferElement>(_flowFieldEntity);
             _gridEntities = _entityBuffer.Reinterpret<Entity>();
             //_cellDatas.Dispose();
@@ -47,21 +49,34 @@ namespace TMG.ECSFlowField
         protected override void OnUpdate()
         {
             if (_flowFieldEntity.Equals(Entity.Null)) {return;}
-
+            float deltaTime = Time.DeltaTime;
             FlowFieldData flowFieldData = _flowFieldData;
+            int2 destinationCell = _destinationCellData.destinationIndex;
             //NativeArray<CellData> cellDatas = new NativeArray<CellData>(_cellDatas.Length, Allocator.TempJob);
             //cellDatas = _cellDatas;
             JobHandle jobHandle = new JobHandle();
-            /*jobHandle = */Entities.ForEach((ref PhysicsVelocity physVelocity, in Translation translation,
-                in EntityMovementTag movementTag) =>
+            /*jobHandle = */Entities.ForEach((ref PhysicsVelocity physVelocity, ref EntityMovementData entityMovementData,
+                ref Translation translation) =>
             {
                 int2 curCellIndex = ECSHelper.GetCellIndexFromWorldPos(translation.Value, flowFieldData.gridSize,
                     flowFieldData.cellRadius * 2);
-                
+                if (curCellIndex.Equals(destinationCell))
+                {
+                    entityMovementData.destinationReached = true;
+                }
                 int flatCurCellIndex = ECSHelper.ToFlatIndex(curCellIndex, flowFieldData.gridSize.y);
-                int2 moveDirection = _cellDatas[flatCurCellIndex].bestDirection;
-                physVelocity.Linear.xz = moveDirection;
-            }).WithoutBurst().Run();//ScheduleParallel(jobHandle);
+                float2 moveDirection = _cellDatas[flatCurCellIndex].bestDirection;
+                float finalMoveSpeed = (entityMovementData.destinationReached ? 1f : entityMovementData.moveSpeed) * deltaTime;
+                physVelocity.Linear = new float3
+                {
+                    x = moveDirection.x * finalMoveSpeed,
+                    y = 0,
+                    z = moveDirection.y * finalMoveSpeed
+                };
+                translation.Value.y = 0f;
+                //physVelocity.Linear.xz = moveDirection * finalMoveSpeed;
+
+            }).Run();//ScheduleParallel(jobHandle);
             //jobHandle.Complete();
             //cellDatas.Dispose();
         }

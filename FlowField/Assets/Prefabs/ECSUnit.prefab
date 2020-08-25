@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 898507979020580274}
   - component: {fileID: 1984073508612192059}
   - component: {fileID: 6967860593825142349}
-  - component: {fileID: 2145344575143789663}
   m_Layer: 10
   m_Name: ECSUnit
   m_TagString: Untagged
@@ -111,17 +110,5 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 4
+  m_Constraints: 126
   m_CollisionDetection: 0
---- !u!114 &2145344575143789663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8270838439448413405}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77f34359f4e84424aae97146239dcac9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
