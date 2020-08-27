@@ -16,7 +16,7 @@ namespace TMG.ECSFlowField
 
 		protected override void OnUpdate()
 		{
-			var commandBuffer = _ecbSystem.CreateCommandBuffer();
+			EntityCommandBuffer commandBuffer = _ecbSystem.CreateCommandBuffer();
 
 			Entities.ForEach((Entity entity, in NewFlowFieldData newFlowFieldData, in FlowFieldData flowFieldData) =>
 			{
