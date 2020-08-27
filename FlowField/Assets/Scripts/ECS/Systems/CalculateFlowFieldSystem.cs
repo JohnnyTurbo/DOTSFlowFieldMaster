@@ -18,7 +18,7 @@ namespace TMG.ECSFlowField
 			var commandBuffer = _ecbSystem.CreateCommandBuffer();
 
 			Entities.ForEach((Entity entity, ref DynamicBuffer<EntityBufferElement> buffer, 
-				in CalculateFlowFieldTag generateIntegrationFieldTag, in DestinationCellData destinationCellData, 
+				in CalculateFlowFieldTag calculateFlowFieldTag, in DestinationCellData destinationCellData, 
 				in FlowFieldData flowFieldData) =>
 			{
 				commandBuffer.RemoveComponent<CalculateFlowFieldTag>(entity);
