@@ -21,7 +21,7 @@ namespace TMG.ECSFlowField
             Entities.ForEach((Entity entity, int entityInQueryIndex, in CompleteFlowFieldTag completeFlowFieldTag, in FlowFieldData flowFieldData) =>
             {
                 commandBuffer.RemoveComponent<CompleteFlowFieldTag>(entity);
-                EntityMovementSystem.instance.SetSingleton();
+                EntityMovementSystem.instance.SetMovementValues();
             }).Run();
         }
     }
