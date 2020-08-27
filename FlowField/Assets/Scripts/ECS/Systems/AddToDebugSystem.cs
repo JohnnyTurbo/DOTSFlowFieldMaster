@@ -4,23 +4,22 @@ namespace TMG.ECSFlowField
 {
 	public class AddToDebugSystem : SystemBase
 	{
-		EntityCommandBufferSystem ecbSystem;
+		private EntityCommandBufferSystem _ecbSystem;
 
 		protected override void OnCreate()
 		{
-			ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
+			_ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
 		}
 
 		protected override void OnUpdate()
 		{
-			var commandBuffer = ecbSystem.CreateCommandBuffer();
+			EntityCommandBuffer commandBuffer = _ecbSystem.CreateCommandBuffer();
 
-			Entities.ForEach((Entity entity, int entityInQueryIndex, in CellData cellData, in AddToDebugTag addToDebugTag) =>
+			Entities.ForEach((Entity entity, in CellData cellData, in AddToDebugTag addToDebugTag) =>
 			{
-				GridDebug.instance.gridCellData.Add(cellData);
+				GridDebug.instance.AddToList(cellData);
 				commandBuffer.RemoveComponent<AddToDebugTag>(entity);
-				
-			}).WithoutBurst().Run();
+			}).Run();
 		}
 	}
 }

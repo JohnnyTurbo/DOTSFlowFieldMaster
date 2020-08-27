@@ -1,7 +1,4 @@
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
 
 namespace TMG.ECSFlowField
 {
@@ -18,7 +15,7 @@ namespace TMG.ECSFlowField
         {
             var commandBuffer = _ecbSystem.CreateCommandBuffer();
             
-            Entities.ForEach((Entity entity, int entityInQueryIndex, in CompleteFlowFieldTag completeFlowFieldTag, in FlowFieldData flowFieldData) =>
+            Entities.ForEach((Entity entity, in CompleteFlowFieldTag completeFlowFieldTag, in FlowFieldData flowFieldData) =>
             {
                 commandBuffer.RemoveComponent<CompleteFlowFieldTag>(entity);
                 EntityMovementSystem.instance.SetMovementValues();

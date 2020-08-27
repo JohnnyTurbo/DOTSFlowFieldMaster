@@ -1,7 +1,4 @@
-﻿using System;
-using Sirenix.Utilities;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -13,40 +10,46 @@ namespace TMG.ECSFlowField
 	{
 		public static GridDebug instance;
 
-		public FlowFieldDisplayType curDisplayType;
-
-		public bool displayGrid;
-		public List<CellData> gridCellData;
-		public FlowFieldControllerData flowFieldControllerData;
-
+		[SerializeField] private FlowFieldDisplayType _curDisplayType;
+		[SerializeField] private bool _displayGrid;
+		
+		private FlowFieldControllerData _flowFieldControllerData;
+		public FlowFieldControllerData FlowFieldControllerData
+		{
+			get => _flowFieldControllerData;
+			set => _flowFieldControllerData = value;
+		}
+		
+		private List<CellData> _gridCellData;
+		
 		private Vector2Int _gridSize;
 		private float _cellRadius;
 
 		private void Awake()
 		{
 			instance = this;
-			gridCellData = new List<CellData>();
+			_gridCellData = new List<CellData>();
 		}
 
 		private void OnDrawGizmos()
 		{
-			if (displayGrid)
+			if (_displayGrid)
 			{
-				_gridSize = new Vector2Int { x = flowFieldControllerData.gridSize.x, y = flowFieldControllerData.gridSize.y };
-				_cellRadius = flowFieldControllerData.cellRadius;
+				_gridSize = new Vector2Int { x = _flowFieldControllerData.gridSize.x, y = _flowFieldControllerData.gridSize.y };
+				_cellRadius = _flowFieldControllerData.cellRadius;
 
-				DrawGrid(_gridSize, gridCellData.IsNullOrEmpty() ? Color.yellow : Color.green, _cellRadius);
+				DrawGrid(_gridSize, (_gridCellData == null || _gridCellData.Count == 0) ? Color.yellow : Color.green, _cellRadius);
 			}
 
-			if (gridCellData.IsNullOrEmpty()) { return; }
+			if (_gridCellData == null || _gridCellData.Count == 0) { return; }
 
 			GUIStyle style = new GUIStyle(GUI.skin.label) {alignment = TextAnchor.MiddleCenter};
 
-			switch (curDisplayType)
+			switch (_curDisplayType)
 			{
 				case FlowFieldDisplayType.CostField:
 
-					foreach (CellData curCell in gridCellData)
+					foreach (CellData curCell in _gridCellData)
 					{
 						Handles.Label(curCell.worldPos, curCell.cost.ToString(), style);
 					}
@@ -54,14 +57,14 @@ namespace TMG.ECSFlowField
 
 				case FlowFieldDisplayType.IntegrationField:
 
-					foreach (CellData curCell in gridCellData)
+					foreach (CellData curCell in _gridCellData)
 					{
 						Handles.Label(curCell.worldPos, curCell.bestCost.ToString(), style);
 					}
 					break;
 				
 				case FlowFieldDisplayType.CostHeatMap:
-					foreach (CellData curCell in gridCellData)
+					foreach (CellData curCell in _gridCellData)
 					{
 						float costHeat = curCell.cost / 255f;
 						Gizmos.color = new Color(costHeat, costHeat, costHeat);
@@ -70,18 +73,27 @@ namespace TMG.ECSFlowField
 						Gizmos.DrawCube(center, size);
 					}
 					break;
+				
 				case FlowFieldDisplayType.AllIcons:
-					foreach (CellData curCell in gridCellData)
+					foreach (CellData curCell in _gridCellData)
 					{
 						Handles.Label(curCell.worldPos, curCell.bestDirection.ToString(), style);
 					}
 					break;
+				
+				case FlowFieldDisplayType.DestinationIcon:
+					break;
+				
+				case FlowFieldDisplayType.None:
+					break;
+				
 				default:
+					Debug.LogWarning("Warning: Invalid Grid Debug Display Type", gameObject);
 					break;
 			}
 		}
 
-		private void DrawGrid(Vector2Int drawGridSize, Color drawColor, float drawCellRadius)
+		private static void DrawGrid(Vector2Int drawGridSize, Color drawColor, float drawCellRadius)
 		{
 			Gizmos.color = drawColor;
 			for (int x = 0; x < drawGridSize.x; x++)
@@ -95,10 +107,8 @@ namespace TMG.ECSFlowField
 			}
 		}
 
-		public void ClearList()
-		{
-			Debug.Log("Clearing List");
-			gridCellData.Clear();
-		}
+		public void ClearList() => _gridCellData.Clear();
+
+		public void AddToList(CellData cellToAdd) => _gridCellData.Add(cellToAdd);
 	}
 }

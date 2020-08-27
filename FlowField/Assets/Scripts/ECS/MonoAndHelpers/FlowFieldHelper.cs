@@ -6,7 +6,7 @@ namespace TMG.ECSFlowField
 {
     public static class FlowFieldHelper
     {
-        public static void GetNeighborIndices(int2 originIndex, List<GridDirection> directions, int2 gridSize, ref NativeList<int2> results)
+        public static void GetNeighborIndices(int2 originIndex, IEnumerable<GridDirection> directions, int2 gridSize, ref NativeList<int2> results)
         {
             foreach (int2 curDirection in directions)
             {

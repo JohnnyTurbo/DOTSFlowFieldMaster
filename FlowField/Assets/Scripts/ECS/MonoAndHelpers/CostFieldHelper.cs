@@ -1,5 +1,3 @@
-using System;
-using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -8,6 +6,7 @@ namespace TMG.ECSFlowField
     public class CostFieldHelper : MonoBehaviour
     {
         public static CostFieldHelper instance;
+        
         private EntityCommandBufferSystem _ecbSystem;
         private int _terrainMask;
 
@@ -28,7 +27,7 @@ namespace TMG.ECSFlowField
             {
                 if (col.gameObject.layer == 8)
                 {
-                    newCost = Byte.MaxValue;
+                    newCost = byte.MaxValue;
                     break;
                 }
                 else if (!hasIncreasedCost && col.gameObject.layer == 9)
