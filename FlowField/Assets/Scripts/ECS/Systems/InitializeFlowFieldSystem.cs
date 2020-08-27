@@ -1,105 +1,50 @@
-﻿using Unity.Physics;
-using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Collections;
+﻿using Unity.Entities;
+using UnityEngine;
 
 namespace TMG.ECSFlowField
 {
 	public class InitializeFlowFieldSystem : SystemBase
 	{
-		private EntityCommandBufferSystem _ecbSystem;
-		private static EntityArchetype _cellArchetype;
+		private Entity _flowField;
+		private EntityQuery _flowFieldControllerQuery;
+		private Entity _flowFieldControllerEntity;
 
 		protected override void OnCreate()
 		{
-			_ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
-			_cellArchetype = EntityManager.CreateArchetype(typeof(CellData));
+			_flowFieldControllerQuery = GetEntityQuery(typeof(FlowFieldControllerData));
+			
 		}
 
 		protected override void OnUpdate()
 		{
-			var commandBuffer = _ecbSystem.CreateCommandBuffer();
-
-			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldData newFlowFieldData, in FlowFieldData flowFieldData) =>
+			if (Input.GetMouseButtonDown(0))
 			{
+				Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
+				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				
+				_flowFieldControllerEntity = _flowFieldControllerQuery.GetSingletonEntity();
 
-				DynamicBuffer<EntityBufferElement> buffer = newFlowFieldData.isExistingFlowField
-					? GetBuffer<EntityBufferElement>(entity)
-					: commandBuffer.AddBuffer<EntityBufferElement>(entity);
-				DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
-				
-				CollisionFilter sharedCollisionFilter = new CollisionFilter()
+				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(_flowFieldControllerEntity);
+				GridDebug.instance.flowFieldControllerData = flowFieldControllerData;
+				FlowFieldData flowFieldData = new FlowFieldData
 				{
-					BelongsTo = ~0u,
-					CollidesWith = (1u << 0) | (1u << 1),
-					GroupIndex = 0
+					gridSize = flowFieldControllerData.gridSize,
+					cellRadius = flowFieldControllerData.cellRadius,
+					clickedPos = worldMousePos
 				};
 				
-				float newCellRadius = flowFieldData.cellRadius;
-				float newCellDiameter = newCellRadius * 2;
-
-				CellSharedData newCellSharedData = new CellSharedData
+				NewFlowFieldData newFlowFieldData = new NewFlowFieldData {isExistingFlowField = true};
+				if (_flowField.Equals(Entity.Null))
 				{
-					cellRadius = newCellRadius,
-					cellDiameter = newCellRadius * 2,
-					halfExtents = new float3(newCellRadius, newCellRadius, newCellRadius),
-					costFieldFilter = sharedCollisionFilter
-				};
-				
-				BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
-
-				ref CellSharedData cbd = ref blobBuilder.ConstructRoot<CellSharedData>();
-				cbd =  newCellSharedData;
-				BlobAssetReference<CellSharedData> csd = blobBuilder.CreateBlobAssetReference<CellSharedData>(Allocator.Persistent);
-				blobBuilder.Dispose();
-
-				int2 gridSize = flowFieldData.gridSize;
-
-				for (int x = 0; x < gridSize.x; x++)
-				{
-					for (int y = 0; y < gridSize.y; y++)
-					{
-						float3 worldPos = new float3(newCellDiameter * x + newCellRadius, 0, newCellDiameter * y + newCellRadius);
-						byte newCost = ECSCostFieldHelper.instance.EvaluateCost(worldPos, newCellRadius);
-						CellData newCellData = new CellData
-						{
-							worldPos = worldPos,
-							gridIndex = new int2(x, y),
-							cost = newCost,
-							bestCost = ushort.MaxValue,
-							bestDirection = int2.zero,
-							cellBlobData = csd
-						};
-						
-						if (newFlowFieldData.isExistingFlowField)
-						{
-							int flatIndex = ECSHelper.ToFlatIndex(new int2(x, y), gridSize.y);
-							Entity existingCell = entityBuffer[flatIndex];
-							commandBuffer.SetComponent(existingCell, newCellData);
-							commandBuffer.AddComponent<AddToDebugTag>(existingCell);
-						}
-						else
-						{
-							Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
-							commandBuffer.SetComponent(newCell, newCellData);
-							commandBuffer.AddComponent<AddToDebugTag>(newCell);
-							entityBuffer.Add(newCell);
-						}
-					}
+					Debug.Log("nullEntity");
+					_flowField = EntityManager.CreateEntity();
+					EntityManager.AddComponent<FlowFieldData>(_flowField);
+					newFlowFieldData.isExistingFlowField = false;
 				}
-				
-				commandBuffer.RemoveComponent<NewFlowFieldData>(entity);
-				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
-
-				int2 destinationIndex = ECSHelper.GetCellIndexFromWorldPos(flowFieldData.clickedPos, gridSize, newCellDiameter);
-				DestinationCellData newDestinationCellData = new DestinationCellData{ destinationIndex = destinationIndex};
-				if (!newFlowFieldData.isExistingFlowField)
-				{
-					commandBuffer.AddComponent<DestinationCellData>(entity);
-				}
-				commandBuffer.SetComponent(entity, newDestinationCellData);
-			}).Run();
+				EntityManager.AddComponent<NewFlowFieldData>(_flowField);
+				EntityManager.SetComponentData(_flowField, flowFieldData);
+				EntityManager.SetComponentData(_flowField, newFlowFieldData);
+			}
 		}
 	}
 }

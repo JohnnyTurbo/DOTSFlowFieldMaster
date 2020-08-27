@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace TMG.ECSFlowField
 {
-    public class ECSCostFieldHelper : MonoBehaviour
+    public class CostFieldHelper : MonoBehaviour
     {
-        public static ECSCostFieldHelper instance;
+        public static CostFieldHelper instance;
         private EntityCommandBufferSystem _ecbSystem;
         private int _terrainMask;
 
