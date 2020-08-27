@@ -2,7 +2,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using UnityEngine;
 
 namespace TMG.ECSFlowField
 {
@@ -21,13 +20,15 @@ namespace TMG.ECSFlowField
 		{
 			var commandBuffer = _ecbSystem.CreateCommandBuffer();
 
-			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldTag newFlowFieldTag, in FlowFieldData flowFieldData) =>
+			Entities.ForEach((Entity entity, int entityInQueryIndex, in NewFlowFieldData newFlowFieldData, in FlowFieldData flowFieldData) =>
 			{
-				commandBuffer.RemoveComponent<NewFlowFieldTag>(entity);
+				
 
-				DynamicBuffer<EntityBufferElement> buffer = commandBuffer.AddBuffer<EntityBufferElement>(entity);
+				DynamicBuffer<EntityBufferElement> buffer = newFlowFieldData.isExistingFlowField
+					? GetBuffer<EntityBufferElement>(entity)
+					: commandBuffer.AddBuffer<EntityBufferElement>(entity);
 				DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
-
+				
 				CollisionFilter sharedCollisionFilter = new CollisionFilter()
 				{
 					BelongsTo = ~0u,
@@ -70,21 +71,34 @@ namespace TMG.ECSFlowField
 							bestDirection = int2.zero,
 							cellBlobData = csd
 						};
-
-						Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
-						commandBuffer.SetComponent(newCell, newCellData);
-						commandBuffer.AddComponent<AddToDebugTag>(newCell);
-						entityBuffer.Add(newCell);
+						
+						if (newFlowFieldData.isExistingFlowField)
+						{
+							int flatIndex = ECSHelper.ToFlatIndex(new int2(x, y), gridSize.y);
+							Entity existingCell = entityBuffer[flatIndex];
+							commandBuffer.SetComponent(existingCell, newCellData);
+							commandBuffer.AddComponent<AddToDebugTag>(existingCell);
+						}
+						else
+						{
+							Entity newCell = commandBuffer.CreateEntity(_cellArchetype);
+							commandBuffer.SetComponent(newCell, newCellData);
+							commandBuffer.AddComponent<AddToDebugTag>(newCell);
+							entityBuffer.Add(newCell);
+						}
 					}
 				}
+				
+				commandBuffer.RemoveComponent<NewFlowFieldData>(entity);
 				commandBuffer.AddComponent<GenerateIntegrationFieldTag>(entity);
 
 				int2 destinationIndex = ECSHelper.GetCellIndexFromWorldPos(flowFieldData.clickedPos, gridSize, newCellDiameter);
-				
 				DestinationCellData newDestinationCellData = new DestinationCellData{ destinationIndex = destinationIndex};
-				commandBuffer.AddComponent<DestinationCellData>(entity);
+				if (!newFlowFieldData.isExistingFlowField)
+				{
+					commandBuffer.AddComponent<DestinationCellData>(entity);
+				}
 				commandBuffer.SetComponent(entity, newDestinationCellData);
-				
 			}).Run();
 		}
 	}

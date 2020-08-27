@@ -23,7 +23,6 @@ namespace TMG.ECSFlowField
 				Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
 				
 				_flowFieldControllerEntity = _flowFieldControllerQuery.GetSingletonEntity();
-				_flowField = EntityManager.CreateEntity();
 
 				FlowFieldControllerData flowFieldControllerData = EntityManager.GetComponentData<FlowFieldControllerData>(_flowFieldControllerEntity);
 				GridDebug.instance.flowFieldControllerData = flowFieldControllerData;
@@ -31,12 +30,20 @@ namespace TMG.ECSFlowField
 				{
 					gridSize = flowFieldControllerData.gridSize,
 					cellRadius = flowFieldControllerData.cellRadius,
-					noiseScale = flowFieldControllerData.noiseScale,
 					clickedPos = worldMousePos
 				};
-				EntityManager.AddComponent<FlowFieldData>(_flowField);
+				
+				NewFlowFieldData newFlowFieldData = new NewFlowFieldData {isExistingFlowField = true};
+				if (_flowField.Equals(Entity.Null))
+				{
+					Debug.Log("nullEntity");
+					_flowField = EntityManager.CreateEntity();
+					EntityManager.AddComponent<FlowFieldData>(_flowField);
+					newFlowFieldData.isExistingFlowField = false;
+				}
+				EntityManager.AddComponent<NewFlowFieldData>(_flowField);
 				EntityManager.SetComponentData(_flowField, flowFieldData);
-				EntityManager.AddComponent<NewFlowFieldTag>(_flowField);
+				EntityManager.SetComponentData(_flowField, newFlowFieldData);
 			}
 		}
 	}

@@ -30,7 +30,7 @@ namespace TMG.ECSFlowField
                 //noiseData.heightMap = new float[perlinTextureSize.x,perlinTextureSize.y];
                 float minSample = 1;
                 float maxSample = 0;
-                float noiseScale = flowFieldData.noiseScale;
+                float noiseScale = 1f;//flowFieldData.noiseScale;
                 
                 for (int x = 0; x < perlinTextureSize.x; x++)
                 {

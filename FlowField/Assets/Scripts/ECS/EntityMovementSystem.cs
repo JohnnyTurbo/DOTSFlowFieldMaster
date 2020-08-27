@@ -35,12 +35,20 @@ namespace TMG.ECSFlowField
             _destinationCellData = EntityManager.GetComponentData<DestinationCellData>(_flowFieldEntity);
             _entityBuffer = EntityManager.GetBuffer<EntityBufferElement>(_flowFieldEntity);
             _gridEntities = _entityBuffer.Reinterpret<Entity>();
-            //_cellDatas.Dispose();
+            if (_cellDatas.IsCreated)
+            {
+                _cellDatas.Dispose();
+            }
             _cellDatas = new NativeArray<CellData>(_gridEntities.Length, Allocator.Persistent);
             for (int i = 0; i < _entityBuffer.Length; i++)
             {
                 _cellDatas[i] = GetComponent<CellData>(_entityBuffer[i]);
             }
+            
+            Entities.ForEach((ref EntityMovementData entityMovementData) =>
+            {
+                entityMovementData.destinationReached = false;
+            }).Run();
         }
 
         protected override void OnDestroy()
@@ -58,11 +66,9 @@ namespace TMG.ECSFlowField
             //NativeArray<CellData> cellDatas = new NativeArray<CellData>(_cellDatas.Length, Allocator.TempJob);
             //cellDatas = _cellDatas;
             JobHandle jobHandle = new JobHandle();
-            jobHandle = Entities.ForEach((Entity entity, int entityInQueryIndex, ref PhysicsVelocity physVelocity, 
-                ref EntityMovementData entityMovementData, ref Translation translation) =>
+            jobHandle = Entities.ForEach((ref PhysicsVelocity physVelocity, ref EntityMovementData entityMovementData, 
+                ref Translation translation) =>
             {
-                //PhysicsVelocity newPhysicsVelocity = physVelocity;
-                //Translation newTranslation = translation;
                 int2 curCellIndex = ECSHelper.GetCellIndexFromWorldPos(translation.Value, flowFieldData.gridSize,
                     flowFieldData.cellRadius * 2);
                 if (curCellIndex.Equals(destinationCell))
@@ -80,11 +86,8 @@ namespace TMG.ECSFlowField
                     z = moveDirection.y * finalMoveSpeed
                 };
                 translation.Value.y = 0f;
-                //commandBuffer.SetComponent(entityInQueryIndex, entity, newPhysicsVelocity);
-                //commandBuffer.SetComponent(entityInQueryIndex, entity, newTranslation);
-                //physVelocity.Linear.xz = moveDirection * finalMoveSpeed;
 
-            })./*Run();*/ScheduleParallel(jobHandle);
+            }).ScheduleParallel(jobHandle);
             jobHandle.Complete();
             //cellDatas.Dispose();
         }
